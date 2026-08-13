@@ -1,17 +1,18 @@
-// ================================
+// ==================================================
 // MOBILE MENU
-// ================================
+// ==================================================
+
 const menuToggle = document.getElementById("menuToggle");
 const navLinks = document.getElementById("navLinks");
 
 if (menuToggle && navLinks) {
-    menuToggle.addEventListener("click", () => {
+    menuToggle.addEventListener("click", function () {
         navLinks.classList.toggle("active");
     });
 }
 
-document.querySelectorAll(".nav-links a").forEach(link => {
-    link.addEventListener("click", () => {
+document.querySelectorAll(".nav-links a").forEach(function (link) {
+    link.addEventListener("click", function () {
         if (navLinks) {
             navLinks.classList.remove("active");
         }
@@ -19,14 +20,15 @@ document.querySelectorAll(".nav-links a").forEach(link => {
 });
 
 
-// ================================
+// ==================================================
 // DARK / LIGHT MODE
-// ================================
+// ==================================================
+
 const themeToggle = document.getElementById("themeToggle");
 
 if (themeToggle) {
 
-    themeToggle.addEventListener("click", () => {
+    themeToggle.addEventListener("click", function () {
 
         document.body.classList.toggle("dark");
 
@@ -49,9 +51,10 @@ if (themeToggle) {
 }
 
 
-// ================================
+// ==================================================
 // CURRENT YEAR
-// ================================
+// ==================================================
+
 const yearElement = document.getElementById("year");
 
 if (yearElement) {
@@ -59,9 +62,10 @@ if (yearElement) {
 }
 
 
-// ================================
+// ==================================================
 // SCROLL ANIMATION
-// ================================
+// ==================================================
+
 const animatedElements = document.querySelectorAll(
     ".skill-card, .highlight, .timeline-content, .contact-card"
 );
@@ -69,9 +73,9 @@ const animatedElements = document.querySelectorAll(
 if ("IntersectionObserver" in window) {
 
     const observer = new IntersectionObserver(
-        entries => {
+        function (entries) {
 
-            entries.forEach(entry => {
+            entries.forEach(function (entry) {
 
                 if (entry.isIntersecting) {
 
@@ -89,7 +93,7 @@ if ("IntersectionObserver" in window) {
         }
     );
 
-    animatedElements.forEach(element => {
+    animatedElements.forEach(function (element) {
 
         element.style.opacity = "0";
         element.style.transform = "translateY(25px)";
@@ -103,7 +107,7 @@ if ("IntersectionObserver" in window) {
 
 
 // ==================================================
-// SUPABASE NOTIFICATION DASHBOARD
+// SUPABASE
 // ==================================================
 
 const SUPABASE_URL =
@@ -112,14 +116,99 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
     "sb_publishable_3OKrT7wF_P5P6vitgWpFJw_Opq-NvTr";
 
+
+// ==================================================
+// SESSION
+// ==================================================
+
+const accessToken =
+    sessionStorage.getItem("parent_access_token");
+
+
+// ==================================================
+// ELEMENTS
+// ==================================================
+
 const notificationList =
     document.getElementById("notificationList");
 
 const notificationStatus =
     document.getElementById("notificationStatus");
 
-const refreshNotifications =
-    document.getElementById("refreshNotifications");
+const locationList =
+    document.getElementById("locationList");
+
+const locationStatus =
+    document.getElementById("locationStatus");
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+
+// ==================================================
+// LOGIN CHECK
+// ==================================================
+
+if (!accessToken) {
+
+    window.location.replace("login.html");
+
+}
+
+
+// ==================================================
+// LOGOUT
+// ==================================================
+
+if (logoutButton) {
+
+    logoutButton.addEventListener("click", function () {
+
+        sessionStorage.removeItem("parent_access_token");
+        sessionStorage.removeItem("parent_refresh_token");
+        sessionStorage.removeItem("parent_user");
+
+        window.location.replace("login.html");
+
+    });
+
+}
+
+
+// ==================================================
+// HTML SECURITY
+// ==================================================
+
+function escapeHTML(value) {
+
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+// ==================================================
+// SUPABASE HEADERS
+// ==================================================
+
+function getSupabaseHeaders() {
+
+    return {
+        "apikey": SUPABASE_KEY,
+        "Authorization":
+            "Bearer " + (accessToken || SUPABASE_KEY),
+        "Content-Type": "application/json"
+    };
+
+}
 
 
 // ==================================================
@@ -132,67 +221,49 @@ async function loadNotifications() {
         return;
     }
 
-    notificationList.innerHTML = `
-        <div class="notification-empty">
-            <span>🔄</span>
-            <p>Loading notifications...</p>
-        </div>
-    `;
-
     if (notificationStatus) {
-        notificationStatus.textContent = "Connecting...";
+        notificationStatus.textContent =
+            "● Updating...";
     }
-
 
     try {
 
-        // IMPORTANT:
-        // Pehle saare columns read kar rahe hain.
-        // Is se missing-column ki wajah se 400 error nahi aayega.
-
         const url =
-            `${SUPABASE_URL}/rest/v1/notifications` +
-            `?select=*` +
-            `&limit=100`;
-
+            SUPABASE_URL +
+            "/rest/v1/notifications" +
+            "?select=id,device_id,app_name,title,message,received_at" +
+            "&order=received_at.desc" +
+            "&limit=100";
 
         const response = await fetch(url, {
-
             method: "GET",
-
-            headers: {
-                "apikey": SUPABASE_KEY,
-                "Authorization": `Bearer ${SUPABASE_KEY}`,
-                "Content-Type": "application/json"
-            }
-
+            headers: getSupabaseHeaders()
         });
-
 
         const responseText = await response.text();
 
-
         console.log(
-            "Supabase Status:",
+            "Notifications Status:",
             response.status
         );
 
         console.log(
-            "Supabase Response:",
+            "Notifications Response:",
             responseText
         );
-
 
         if (!response.ok) {
 
             throw new Error(
-                `Supabase returned ${response.status}: ${responseText}`
+                "Supabase returned " +
+                response.status +
+                ": " +
+                responseText
             );
 
         }
 
-
-        let notifications;
+        let notifications = [];
 
         try {
 
@@ -206,23 +277,16 @@ async function loadNotifications() {
 
         }
 
-
-        console.log(
-            "Notifications received:",
-            notifications
-        );
-
-
         displayNotifications(notifications);
-
 
         if (notificationStatus) {
 
             notificationStatus.textContent =
-                `● Connected • ${notifications.length} notifications`;
+                "● Connected • " +
+                notifications.length +
+                " notifications";
 
         }
-
 
     } catch (error) {
 
@@ -231,23 +295,16 @@ async function loadNotifications() {
             error
         );
 
-
-        notificationList.innerHTML = `
-            <div class="notification-empty">
-
-                <span>⚠️</span>
-
-                <p>
-                    Unable to load notifications
-                </p>
-
-                <small>
-                    ${escapeHTML(error.message)}
-                </small>
-
-            </div>
-        `;
-
+        notificationList.innerHTML =
+            '<div class="notification-empty">' +
+                '<span>⚠️</span>' +
+                '<p class="error-message">' +
+                    'Unable to load notifications' +
+                '</p>' +
+                '<small>' +
+                    escapeHTML(error.message) +
+                '</small>' +
+            '</div>';
 
         if (notificationStatus) {
 
@@ -257,6 +314,7 @@ async function loadNotifications() {
         }
 
     }
+
 }
 
 
@@ -270,37 +328,27 @@ function displayNotifications(notifications) {
         return;
     }
 
-
     if (
         !Array.isArray(notifications) ||
         notifications.length === 0
     ) {
 
-        notificationList.innerHTML = `
-            <div class="notification-empty">
-
-                <span>🔔</span>
-
-                <p>
-                    No notifications yet
-                </p>
-
-                <small>
-                    Notifications from the Android app
-                    will appear here.
-                </small>
-
-            </div>
-        `;
+        notificationList.innerHTML =
+            '<div class="notification-empty">' +
+                '<span>🔔</span>' +
+                '<p>No notifications yet</p>' +
+                '<small>' +
+                    'Notifications from the Android app ' +
+                    'will appear here.' +
+                '</small>' +
+            '</div>';
 
         return;
     }
 
-
     notificationList.innerHTML = "";
 
-
-    notifications.forEach(notification => {
+    notifications.forEach(function (notification) {
 
         const card =
             document.createElement("div");
@@ -309,7 +357,6 @@ function displayNotifications(notifications) {
             "notification-card";
 
 
-        // Different possible column names handle karne ke liye
         const appName =
             notification.app_name ||
             notification.app ||
@@ -336,21 +383,20 @@ function displayNotifications(notifications) {
             "Unknown Device";
 
 
-       const createdAt =
-    notification.received_at ||
-    notification.created_at ||
-    notification.createdAt ||
-    notification.timestamp;
+        const receivedAt =
+            notification.received_at ||
+            notification.created_at ||
+            notification.timestamp;
+
 
         let formattedTime =
             "Unknown time";
 
 
-        if (createdAt) {
+        if (receivedAt) {
 
             const date =
-                new Date(createdAt);
-
+                new Date(receivedAt);
 
             if (!isNaN(date.getTime())) {
 
@@ -362,115 +408,342 @@ function displayNotifications(notifications) {
         }
 
 
-        card.innerHTML = `
+        card.innerHTML =
+            '<div class="notification-card-top">' +
 
-            <div class="notification-card-top">
+                '<div class="notification-app">' +
+                    '📱 ' +
+                    escapeHTML(appName) +
+                '</div>' +
 
-                <div class="notification-app">
+                '<div class="notification-time">' +
+                    escapeHTML(formattedTime) +
+                '</div>' +
 
-                    📱
-                    ${escapeHTML(appName)}
+            '</div>' +
 
-                </div>
+            '<div class="notification-title">' +
+                escapeHTML(title) +
+            '</div>' +
 
+            '<div class="notification-message">' +
+                escapeHTML(message) +
+            '</div>' +
 
-                <div class="notification-time">
-
-                    ${escapeHTML(formattedTime)}
-
-                </div>
-
-            </div>
-
-
-            <div class="notification-title">
-
-                ${escapeHTML(title)}
-
-            </div>
-
-
-            <div class="notification-message">
-
-                ${escapeHTML(message)}
-
-            </div>
-
-
-            <div class="notification-device">
-
-                Device:
-                ${escapeHTML(deviceId)}
-
-            </div>
-
-        `;
+            '<div class="notification-device">' +
+                'Device: ' +
+                escapeHTML(deviceId) +
+            '</div>';
 
 
         notificationList.appendChild(card);
 
     });
+
 }
 
 
 // ==================================================
-// HTML SECURITY
+// LOAD LOCATIONS
 // ==================================================
 
-function escapeHTML(value) {
+async function loadLocations() {
 
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
+    if (!locationList) {
+        return;
     }
 
+    if (locationStatus) {
+        locationStatus.textContent =
+            "● Updating...";
+    }
 
-    return String(value)
+    try {
 
-        .replace(/&/g, "&amp;")
+        const url =
+            SUPABASE_URL +
+            "/rest/v1/locations" +
+            "?select=id,created_at,device_id,latitude,longitude" +
+            "&order=created_at.desc" +
+            "&limit=100";
 
-        .replace(/</g, "&lt;")
+        const response = await fetch(url, {
+            method: "GET",
+            headers: getSupabaseHeaders()
+        });
 
-        .replace(/>/g, "&gt;")
+        const responseText = await response.text();
 
-        .replace(/"/g, "&quot;")
+        console.log(
+            "Locations Status:",
+            response.status
+        );
 
-        .replace(/'/g, "&#039;");
-}
+        console.log(
+            "Locations Response:",
+            responseText
+        );
 
+        if (!response.ok) {
 
-// ==================================================
-// REFRESH BUTTON
-// ==================================================
-
-if (refreshNotifications) {
-
-    refreshNotifications.addEventListener(
-        "click",
-        () => {
-
-            loadNotifications();
+            throw new Error(
+                "Supabase returned " +
+                response.status +
+                ": " +
+                responseText
+            );
 
         }
-    );
+
+        let locations = [];
+
+        try {
+
+            locations = JSON.parse(responseText);
+
+        } catch (error) {
+
+            throw new Error(
+                "Supabase returned invalid JSON"
+            );
+
+        }
+
+        displayLocations(locations);
+
+        if (locationStatus) {
+
+            locationStatus.textContent =
+                "● Connected • " +
+                locations.length +
+                " locations";
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Location loading error:",
+            error
+        );
+
+        locationList.innerHTML =
+            '<div class="location-empty">' +
+                '<span>⚠️</span>' +
+                '<p class="error-message">' +
+                    'Unable to load locations' +
+                '</p>' +
+                '<small>' +
+                    escapeHTML(error.message) +
+                '</small>' +
+            '</div>';
+
+        if (locationStatus) {
+
+            locationStatus.textContent =
+                "● Connection Error";
+
+        }
+
+    }
+
 }
 
 
 // ==================================================
-// AUTOMATIC REFRESH
+// DISPLAY LOCATIONS
 // ==================================================
 
-setInterval(() => {
+function displayLocations(locations) {
+
+    if (!locationList) {
+        return;
+    }
+
+    if (
+        !Array.isArray(locations) ||
+        locations.length === 0
+    ) {
+
+        locationList.innerHTML =
+            '<div class="location-empty">' +
+                '<span>📍</span>' +
+                '<p>No locations yet</p>' +
+                '<small>' +
+                    'Location data from the Android app ' +
+                    'will appear here.' +
+                '</small>' +
+            '</div>';
+
+        return;
+    }
+
+    locationList.innerHTML = "";
+
+    locations.forEach(function (location) {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "location-card";
+
+
+        const deviceId =
+            location.device_id ||
+            "Unknown Device";
+
+
+        const latitude =
+            location.latitude !== null &&
+            location.latitude !== undefined
+                ? location.latitude
+                : "N/A";
+
+
+        const longitude =
+            location.longitude !== null &&
+            location.longitude !== undefined
+                ? location.longitude
+                : "N/A";
+
+
+        let formattedTime =
+            "Unknown time";
+
+
+        if (location.created_at) {
+
+            const date =
+                new Date(location.created_at);
+
+            if (!isNaN(date.getTime())) {
+
+                formattedTime =
+                    date.toLocaleString();
+
+            }
+
+        }
+
+
+        let mapLink = "#";
+
+
+        if (
+            location.latitude !== null &&
+            location.latitude !== undefined &&
+            location.longitude !== null &&
+            location.longitude !== undefined
+        ) {
+
+            mapLink =
+                "https://www.google.com/maps?q=" +
+                encodeURIComponent(
+                    location.latitude +
+                    "," +
+                    location.longitude
+                );
+
+        }
+
+
+        card.innerHTML =
+            '<div class="location-card-top">' +
+
+                '<div class="notification-app">' +
+                    '📍 Location' +
+                '</div>' +
+
+                '<div class="location-time">' +
+                    escapeHTML(formattedTime) +
+                '</div>' +
+
+            '</div>' +
+
+            '<div class="location-coordinates">' +
+
+                '<div class="coordinate-box">' +
+
+                    '<span class="coordinate-label">' +
+                        'Latitude' +
+                    '</span>' +
+
+                    '<span class="coordinate-value">' +
+                        escapeHTML(latitude) +
+                    '</span>' +
+
+                '</div>' +
+
+                '<div class="coordinate-box">' +
+
+                    '<span class="coordinate-label">' +
+                        'Longitude' +
+                    '</span>' +
+
+                    '<span class="coordinate-value">' +
+                        escapeHTML(longitude) +
+                    '</span>' +
+
+                '</div>' +
+
+            '</div>' +
+
+            '<div class="location-device">' +
+
+                'ID: ' +
+                escapeHTML(location.id) +
+
+                '<br>' +
+
+                'Device: ' +
+                escapeHTML(deviceId) +
+
+            '</div>' +
+
+            '<div class="location-device">' +
+
+                '<a href="' +
+                    mapLink +
+                '" target="_blank" rel="noopener noreferrer">' +
+
+                    '🗺️ Open Location in Google Maps' +
+
+                '</a>' +
+
+            '</div>';
+
+
+        locationList.appendChild(card);
+
+    });
+
+}
+
+
+// ==================================================
+// AUTOMATIC UPDATE
+// ==================================================
+// Refresh buttons are NOT used.
+// Dashboard automatically updates every 10 seconds.
+
+setInterval(function () {
 
     loadNotifications();
+
+    loadLocations();
 
 }, 10000);
 
 
 // ==================================================
-// START
+// FIRST LOAD
 // ==================================================
 
-loadNotifications();
+if (accessToken) {
+
+    loadNotifications();
+
+    loadLocations();
+
+}
