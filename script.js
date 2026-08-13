@@ -1,7 +1,6 @@
 // ================================
 // MOBILE MENU
 // ================================
-
 const menuToggle = document.getElementById("menuToggle");
 const navLinks = document.getElementById("navLinks");
 
@@ -23,7 +22,6 @@ document.querySelectorAll(".nav-links a").forEach(link => {
 // ================================
 // DARK / LIGHT MODE
 // ================================
-
 const themeToggle = document.getElementById("themeToggle");
 
 if (themeToggle) {
@@ -54,7 +52,6 @@ if (themeToggle) {
 // ================================
 // CURRENT YEAR
 // ================================
-
 const yearElement = document.getElementById("year");
 
 if (yearElement) {
@@ -65,7 +62,6 @@ if (yearElement) {
 // ================================
 // SCROLL ANIMATION
 // ================================
-
 const animatedElements = document.querySelectorAll(
     ".skill-card, .highlight, .timeline-content, .contact-card"
 );
@@ -107,7 +103,7 @@ if ("IntersectionObserver" in window) {
 
 
 // ==================================================
-// NOTIFICATION DASHBOARD
+// SUPABASE NOTIFICATION DASHBOARD
 // ==================================================
 
 const SUPABASE_URL =
@@ -115,7 +111,6 @@ const SUPABASE_URL =
 
 const SUPABASE_KEY =
     "sb_publishable_3OKrT7wF_P5P6vitgWpFJw_Opq-NvTr";
-
 
 const notificationList =
     document.getElementById("notificationList");
@@ -151,10 +146,13 @@ async function loadNotifications() {
 
     try {
 
+        // IMPORTANT:
+        // Pehle saare columns read kar rahe hain.
+        // Is se missing-column ki wajah se 400 error nahi aayega.
+
         const url =
             `${SUPABASE_URL}/rest/v1/notifications` +
-            `?select=id,device_id,app_name,title,message,created_at` +
-            `&order=created_at.desc` +
+            `?select=*` +
             `&limit=100`;
 
 
@@ -174,17 +172,23 @@ async function loadNotifications() {
         const responseText = await response.text();
 
 
+        console.log(
+            "Supabase Status:",
+            response.status
+        );
+
+        console.log(
+            "Supabase Response:",
+            responseText
+        );
+
+
         if (!response.ok) {
 
-            console.error(
-                "Supabase response:",
-                response.status,
-                responseText
+            throw new Error(
+                `Supabase returned ${response.status}: ${responseText}`
             );
 
-            throw new Error(
-                `Supabase returned ${response.status}`
-            );
         }
 
 
@@ -196,14 +200,10 @@ async function loadNotifications() {
 
         } catch (error) {
 
-            console.error(
-                "Invalid JSON:",
-                responseText
+            throw new Error(
+                "Supabase returned invalid JSON"
             );
 
-            throw new Error(
-                "Supabase returned invalid data"
-            );
         }
 
 
@@ -217,8 +217,10 @@ async function loadNotifications() {
 
 
         if (notificationStatus) {
+
             notificationStatus.textContent =
                 `● Connected • ${notifications.length} notifications`;
+
         }
 
 
@@ -232,24 +234,29 @@ async function loadNotifications() {
 
         notificationList.innerHTML = `
             <div class="notification-empty">
+
                 <span>⚠️</span>
+
                 <p>
                     Unable to load notifications
                 </p>
+
                 <small>
                     ${escapeHTML(error.message)}
                 </small>
+
             </div>
         `;
 
 
         if (notificationStatus) {
+
             notificationStatus.textContent =
                 "● Connection Error";
+
         }
 
     }
-
 }
 
 
@@ -271,12 +278,18 @@ function displayNotifications(notifications) {
 
         notificationList.innerHTML = `
             <div class="notification-empty">
+
                 <span>🔔</span>
-                <p>No notifications yet</p>
+
+                <p>
+                    No notifications yet
+                </p>
+
                 <small>
                     Notifications from the Android app
                     will appear here.
                 </small>
+
             </div>
         `;
 
@@ -289,43 +302,54 @@ function displayNotifications(notifications) {
 
     notifications.forEach(notification => {
 
-
         const card =
             document.createElement("div");
-
 
         card.className =
             "notification-card";
 
 
+        // Different possible column names handle karne ke liye
         const appName =
             notification.app_name ||
+            notification.app ||
+            notification.package_name ||
             "Unknown App";
 
 
         const title =
             notification.title ||
+            notification.notification_title ||
             "Notification";
 
 
         const message =
             notification.message ||
+            notification.text ||
+            notification.notification_text ||
             "";
 
 
         const deviceId =
             notification.device_id ||
+            notification.device ||
             "Unknown Device";
 
+
+       const createdAt =
+    notification.received_at ||
+    notification.created_at ||
+    notification.createdAt ||
+    notification.timestamp;
 
         let formattedTime =
             "Unknown time";
 
 
-        if (notification.created_at) {
+        if (createdAt) {
 
             const date =
-                new Date(notification.created_at);
+                new Date(createdAt);
 
 
             if (!isNaN(date.getTime())) {
@@ -348,6 +372,7 @@ function displayNotifications(notifications) {
                     ${escapeHTML(appName)}
 
                 </div>
+
 
                 <div class="notification-time">
 
@@ -385,7 +410,6 @@ function displayNotifications(notifications) {
         notificationList.appendChild(card);
 
     });
-
 }
 
 
@@ -431,7 +455,6 @@ if (refreshNotifications) {
 
         }
     );
-
 }
 
 
