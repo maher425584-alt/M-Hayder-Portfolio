@@ -1,5 +1,6 @@
+```javascript
 // ==================================================
-// MOBILE MENU
+// PORTFOLIO MOBILE MENU
 // ==================================================
 
 const menuToggle = document.getElementById("menuToggle");
@@ -126,7 +127,7 @@ const accessToken =
 
 
 // ==================================================
-// ELEMENTS
+// DASHBOARD ELEMENTS
 // ==================================================
 
 const notificationList =
@@ -149,10 +150,11 @@ const logoutButton =
 // LOGIN CHECK
 // ==================================================
 
-if (!accessToken) {
-
+if (
+    (notificationList || locationList) &&
+    !accessToken
+) {
     window.location.replace("login.html");
-
 }
 
 
@@ -191,7 +193,6 @@ function escapeHTML(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-
 }
 
 
@@ -235,22 +236,23 @@ async function loadNotifications() {
             "&order=received_at.desc" +
             "&limit=100";
 
-        const response = await fetch(url, {
-            method: "GET",
-            headers: getSupabaseHeaders()
-        });
 
-        const responseText = await response.text();
+        const response =
+            await fetch(url, {
+                method: "GET",
+                headers: getSupabaseHeaders()
+            });
+
+
+        const responseText =
+            await response.text();
+
 
         console.log(
             "Notifications Status:",
             response.status
         );
 
-        console.log(
-            "Notifications Response:",
-            responseText
-        );
 
         if (!response.ok) {
 
@@ -263,11 +265,13 @@ async function loadNotifications() {
 
         }
 
-        let notifications = [];
+
+        let notifications;
 
         try {
 
-            notifications = JSON.parse(responseText);
+            notifications =
+                JSON.parse(responseText);
 
         } catch (error) {
 
@@ -277,7 +281,9 @@ async function loadNotifications() {
 
         }
 
+
         displayNotifications(notifications);
+
 
         if (notificationStatus) {
 
@@ -295,16 +301,22 @@ async function loadNotifications() {
             error
         );
 
+
         notificationList.innerHTML =
             '<div class="notification-empty">' +
+
                 '<span>⚠️</span>' +
+
                 '<p class="error-message">' +
                     'Unable to load notifications' +
                 '</p>' +
+
                 '<small>' +
                     escapeHTML(error.message) +
                 '</small>' +
+
             '</div>';
+
 
         if (notificationStatus) {
 
@@ -328,6 +340,7 @@ function displayNotifications(notifications) {
         return;
     }
 
+
     if (
         !Array.isArray(notifications) ||
         notifications.length === 0
@@ -335,23 +348,30 @@ function displayNotifications(notifications) {
 
         notificationList.innerHTML =
             '<div class="notification-empty">' +
+
                 '<span>🔔</span>' +
+
                 '<p>No notifications yet</p>' +
+
                 '<small>' +
                     'Notifications from the Android app ' +
                     'will appear here.' +
                 '</small>' +
+
             '</div>';
 
         return;
     }
 
+
     notificationList.innerHTML = "";
+
 
     notifications.forEach(function (notification) {
 
         const card =
             document.createElement("div");
+
 
         card.className =
             "notification-card";
@@ -398,6 +418,7 @@ function displayNotifications(notifications) {
             const date =
                 new Date(receivedAt);
 
+
             if (!isNaN(date.getTime())) {
 
                 formattedTime =
@@ -409,6 +430,7 @@ function displayNotifications(notifications) {
 
 
         card.innerHTML =
+
             '<div class="notification-card-top">' +
 
                 '<div class="notification-app">' +
@@ -422,13 +444,16 @@ function displayNotifications(notifications) {
 
             '</div>' +
 
+
             '<div class="notification-title">' +
                 escapeHTML(title) +
             '</div>' +
 
+
             '<div class="notification-message">' +
                 escapeHTML(message) +
             '</div>' +
+
 
             '<div class="notification-device">' +
                 'Device: ' +
@@ -453,10 +478,14 @@ async function loadLocations() {
         return;
     }
 
+
     if (locationStatus) {
+
         locationStatus.textContent =
             "● Updating...";
+
     }
+
 
     try {
 
@@ -467,22 +496,23 @@ async function loadLocations() {
             "&order=created_at.desc" +
             "&limit=100";
 
-        const response = await fetch(url, {
-            method: "GET",
-            headers: getSupabaseHeaders()
-        });
 
-        const responseText = await response.text();
+        const response =
+            await fetch(url, {
+                method: "GET",
+                headers: getSupabaseHeaders()
+            });
+
+
+        const responseText =
+            await response.text();
+
 
         console.log(
             "Locations Status:",
             response.status
         );
 
-        console.log(
-            "Locations Response:",
-            responseText
-        );
 
         if (!response.ok) {
 
@@ -495,11 +525,13 @@ async function loadLocations() {
 
         }
 
-        let locations = [];
+
+        let locations;
 
         try {
 
-            locations = JSON.parse(responseText);
+            locations =
+                JSON.parse(responseText);
 
         } catch (error) {
 
@@ -509,7 +541,9 @@ async function loadLocations() {
 
         }
 
+
         displayLocations(locations);
+
 
         if (locationStatus) {
 
@@ -527,16 +561,22 @@ async function loadLocations() {
             error
         );
 
+
         locationList.innerHTML =
             '<div class="location-empty">' +
+
                 '<span>⚠️</span>' +
+
                 '<p class="error-message">' +
                     'Unable to load locations' +
                 '</p>' +
+
                 '<small>' +
                     escapeHTML(error.message) +
                 '</small>' +
+
             '</div>';
+
 
         if (locationStatus) {
 
@@ -560,6 +600,7 @@ function displayLocations(locations) {
         return;
     }
 
+
     if (
         !Array.isArray(locations) ||
         locations.length === 0
@@ -567,23 +608,30 @@ function displayLocations(locations) {
 
         locationList.innerHTML =
             '<div class="location-empty">' +
+
                 '<span>📍</span>' +
+
                 '<p>No locations yet</p>' +
+
                 '<small>' +
                     'Location data from the Android app ' +
                     'will appear here.' +
                 '</small>' +
+
             '</div>';
 
         return;
     }
 
+
     locationList.innerHTML = "";
+
 
     locations.forEach(function (location) {
 
         const card =
             document.createElement("div");
+
 
         card.className =
             "location-card";
@@ -617,6 +665,7 @@ function displayLocations(locations) {
             const date =
                 new Date(location.created_at);
 
+
             if (!isNaN(date.getTime())) {
 
                 formattedTime =
@@ -649,6 +698,7 @@ function displayLocations(locations) {
 
 
         card.innerHTML =
+
             '<div class="location-card-top">' +
 
                 '<div class="notification-app">' +
@@ -660,6 +710,7 @@ function displayLocations(locations) {
                 '</div>' +
 
             '</div>' +
+
 
             '<div class="location-coordinates">' +
 
@@ -675,6 +726,7 @@ function displayLocations(locations) {
 
                 '</div>' +
 
+
                 '<div class="coordinate-box">' +
 
                     '<span class="coordinate-label">' +
@@ -689,6 +741,7 @@ function displayLocations(locations) {
 
             '</div>' +
 
+
             '<div class="location-device">' +
 
                 'ID: ' +
@@ -700,6 +753,7 @@ function displayLocations(locations) {
                 escapeHTML(deviceId) +
 
             '</div>' +
+
 
             '<div class="location-device">' +
 
@@ -724,14 +778,16 @@ function displayLocations(locations) {
 // ==================================================
 // AUTOMATIC UPDATE
 // ==================================================
-// Refresh buttons are NOT used.
-// Dashboard automatically updates every 10 seconds.
 
 setInterval(function () {
 
-    loadNotifications();
+    if (notificationList) {
+        loadNotifications();
+    }
 
-    loadLocations();
+    if (locationList) {
+        loadLocations();
+    }
 
 }, 10000);
 
@@ -742,8 +798,13 @@ setInterval(function () {
 
 if (accessToken) {
 
-    loadNotifications();
+    if (notificationList) {
+        loadNotifications();
+    }
 
-    loadLocations();
+    if (locationList) {
+        loadLocations();
+    }
 
 }
+```

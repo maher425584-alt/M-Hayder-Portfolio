@@ -85,21 +85,65 @@
             color: #6b7280;
         }
 
+        /* =========================
+           TABS
+        ========================= */
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 8px;
+            border-radius: 14px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            margin-bottom: 25px;
+        }
+
+        .tab-button {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .tab-button:hover {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .tab-button.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* =========================
+           DASHBOARD CARD
+        ========================= */
+
         .dashboard-card {
             background: white;
             border-radius: 18px;
             box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            margin-bottom: 25px;
         }
 
         .dashboard-top {
             padding: 22px 25px;
             border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
         }
 
         .dashboard-top h2 {
@@ -118,8 +162,11 @@
             padding: 20px;
         }
 
-        .notification-card,
-        .location-card {
+        /* =========================
+           NOTIFICATIONS
+        ========================= */
+
+        .notification-card {
             border: 1px solid #e5e7eb;
             border-radius: 14px;
             padding: 18px;
@@ -127,13 +174,11 @@
             background: #fafafa;
         }
 
-        .notification-card:last-child,
-        .location-card:last-child {
+        .notification-card:last-child {
             margin-bottom: 0;
         }
 
-        .notification-card-top,
-        .location-card-top {
+        .notification-card-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -146,8 +191,7 @@
             color: #2563eb;
         }
 
-        .notification-time,
-        .location-time {
+        .notification-time {
             color: #6b7280;
             font-size: 12px;
             text-align: right;
@@ -165,8 +209,7 @@
             word-break: break-word;
         }
 
-        .notification-device,
-        .location-device {
+        .notification-device {
             margin-top: 12px;
             padding-top: 10px;
             border-top: 1px solid #e5e7eb;
@@ -174,14 +217,34 @@
             font-size: 13px;
         }
 
-        .location-device a {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: 700;
+        /* =========================
+           LOCATIONS
+        ========================= */
+
+        .location-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 14px;
+            background: #fafafa;
         }
 
-        .location-device a:hover {
-            text-decoration: underline;
+        .location-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .location-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .location-time {
+            color: #6b7280;
+            font-size: 12px;
+            text-align: right;
         }
 
         .location-coordinates {
@@ -210,6 +273,28 @@
             word-break: break-word;
         }
 
+        .location-device {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .location-device a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .location-device a:hover {
+            text-decoration: underline;
+        }
+
+        /* =========================
+           EMPTY / ERROR
+        ========================= */
+
         .notification-empty,
         .location-empty {
             text-align: center;
@@ -235,6 +320,10 @@
             color: #dc2626 !important;
         }
 
+        /* =========================
+           MOBILE
+        ========================= */
+
         @media (max-width: 650px) {
 
             .header-inner {
@@ -254,9 +343,13 @@
                 font-size: 27px;
             }
 
-            .dashboard-top {
-                align-items: flex-start;
-                flex-direction: column;
+            .tabs {
+                gap: 6px;
+            }
+
+            .tab-button {
+                padding: 12px 8px;
+                font-size: 14px;
             }
 
             .notification-card-top,
@@ -308,42 +401,78 @@
         <h1>Parent Dashboard</h1>
 
         <p>
-            Notifications and locations received from the connected Android device.
+            Manage notifications and locations from the connected Android device.
         </p>
 
     </div>
 
 
-    <!-- ========================= -->
-    <!-- NOTIFICATIONS -->
-    <!-- ========================= -->
+    <!-- =========================
+         TABS
+    ========================= -->
 
-    <section class="dashboard-card">
+    <div class="tabs">
 
-        <div class="dashboard-top">
+        <button
+            class="tab-button active"
+            data-tab="notificationsTab"
+            type="button">
 
-            <div>
+            🔔 Notifications
+
+        </button>
+
+
+        <button
+            class="tab-button"
+            data-tab="locationsTab"
+            type="button">
+
+            📍 Location
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================
+         NOTIFICATIONS TAB
+    ========================= -->
+
+    <section
+        id="notificationsTab"
+        class="tab-content active">
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-top">
 
                 <h2>Recent Notifications</h2>
 
-                <span id="notificationStatus" class="status">
+                <span
+                    id="notificationStatus"
+                    class="status">
+
                     Connecting...
+
                 </span>
 
             </div>
 
-        </div>
 
+            <div
+                id="notificationList"
+                class="notification-list">
 
-        <div
-            id="notificationList"
-            class="notification-list">
+                <div class="notification-empty">
 
-            <div class="notification-empty">
+                    <span>🔄</span>
 
-                <span>🔄</span>
+                    <p>
+                        Loading notifications...
+                    </p>
 
-                <p>Loading notifications...</p>
+                </div>
 
             </div>
 
@@ -352,36 +481,44 @@
     </section>
 
 
-    <!-- ========================= -->
-    <!-- LOCATIONS -->
-    <!-- ========================= -->
+    <!-- =========================
+         LOCATION TAB
+    ========================= -->
 
-    <section class="dashboard-card">
+    <section
+        id="locationsTab"
+        class="tab-content">
 
-        <div class="dashboard-top">
+        <div class="dashboard-card">
 
-            <div>
+            <div class="dashboard-top">
 
                 <h2>Locations</h2>
 
-                <span id="locationStatus" class="status">
+                <span
+                    id="locationStatus"
+                    class="status">
+
                     Connecting...
+
                 </span>
 
             </div>
 
-        </div>
 
+            <div
+                id="locationList"
+                class="location-list">
 
-        <div
-            id="locationList"
-            class="location-list">
+                <div class="location-empty">
 
-            <div class="location-empty">
+                    <span>📍</span>
 
-                <span>📍</span>
+                    <p>
+                        Loading locations...
+                    </p>
 
-                <p>Loading locations...</p>
+                </div>
 
             </div>
 
@@ -392,12 +529,71 @@
 </main>
 
 
-<!-- IMPORTANT:
-     Dashboard ka JavaScript sirf script.js se chalega.
-     Yahan duplicate JavaScript nahi hai.
+<!--
+    Existing script.js remains unchanged.
 -->
 
 <script src="script.js"></script>
+
+
+<!--
+    ONLY TAB SWITCHING.
+    This does NOT replace script.js.
+-->
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const tabButtons =
+            document.querySelectorAll(".tab-button");
+
+        const tabContents =
+            document.querySelectorAll(".tab-content");
+
+
+        tabButtons.forEach(function (button) {
+
+            button.addEventListener("click", function () {
+
+                const targetId =
+                    button.getAttribute("data-tab");
+
+
+                tabButtons.forEach(function (item) {
+
+                    item.classList.remove("active");
+
+                });
+
+
+                tabContents.forEach(function (content) {
+
+                    content.classList.remove("active");
+
+                });
+
+
+                button.classList.add("active");
+
+
+                const target =
+                    document.getElementById(targetId);
+
+
+                if (target) {
+
+                    target.classList.add("active");
+
+                }
+
+            });
+
+        });
+
+    });
+
+</script>
 
 </body>
 </html>
