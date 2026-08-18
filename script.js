@@ -1,6 +1,6 @@
 // ==================================================
 // MY HAYDER WEBSITE + PRIVATE PARENT DASHBOARD
-// Notifications + Locations + Private Photos
+// Notifications + Locations + Private Camera Photos
 // ==================================================
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -73,36 +73,34 @@ document.addEventListener("DOMContentLoaded", function () {
     // SCROLL ANIMATION
     // ==================================================
 
-    const animatedElements =
-        document.querySelectorAll(
-            ".skill-card, .highlight, .timeline-content, .contact-card"
-        );
+    const animatedElements = document.querySelectorAll(
+        ".skill-card, .highlight, .timeline-content, .contact-card"
+    );
 
     if ("IntersectionObserver" in window) {
 
-        const observer =
-            new IntersectionObserver(
-                function (entries) {
+        const observer = new IntersectionObserver(
+            function (entries) {
 
-                    entries.forEach(function (entry) {
+                entries.forEach(function (entry) {
 
-                        if (entry.isIntersecting) {
+                    if (entry.isIntersecting) {
 
-                            entry.target.style.opacity = "1";
+                        entry.target.style.opacity = "1";
 
-                            entry.target.style.transform =
-                                "translateY(0)";
+                        entry.target.style.transform =
+                            "translateY(0)";
 
-                            observer.unobserve(entry.target);
-                        }
+                        observer.unobserve(entry.target);
+                    }
 
-                    });
+                });
 
-                },
-                {
-                    threshold: 0.15
-                }
-            );
+            },
+            {
+                threshold: 0.15
+            }
+        );
 
         animatedElements.forEach(function (element) {
 
@@ -123,11 +121,18 @@ document.addEventListener("DOMContentLoaded", function () {
     // SUPABASE
     // ==================================================
 
+    // IMPORTANT:
+    // ONLY actual Supabase URL here.
+    // DO NOT use Markdown links.
+
     const SUPABASE_URL =
         "https://wfwxidbdyqwkqsbaxtlj.supabase.co";
 
     const SUPABASE_KEY =
         "sb_publishable_3OKrT7wF_P5P6vitgWpFJw_Opq-NvTr";
+
+    const CAMERA_BUCKET =
+        "camera-photos";
 
 
     // ==================================================
@@ -207,6 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 window.location.replace(
                     "login.html"
                 );
+
             }
         );
     }
@@ -245,17 +251,53 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         return {
-
-            "apikey":
-                SUPABASE_KEY,
-
-            "Authorization":
-                "Bearer " + accessToken,
-
-            "Content-Type":
-                "application/json"
+            "apikey": SUPABASE_KEY,
+            "Authorization": "Bearer " + accessToken,
+            "Content-Type": "application/json"
         };
     }
+
+
+    // ==================================================
+    // TABS
+    // ==================================================
+
+    const tabButtons =
+        document.querySelectorAll(".tab-button");
+
+    const tabContents =
+        document.querySelectorAll(".tab-content");
+
+    tabButtons.forEach(function (button) {
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                const targetId =
+                    button.getAttribute("data-tab");
+
+                tabButtons.forEach(function (item) {
+                    item.classList.remove("active");
+                });
+
+                tabContents.forEach(function (content) {
+                    content.classList.remove("active");
+                });
+
+                button.classList.add("active");
+
+                const target =
+                    document.getElementById(targetId);
+
+                if (target) {
+                    target.classList.add("active");
+                }
+
+            }
+        );
+
+    });
 
 
     // ==================================================
@@ -287,8 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     url,
                     {
                         method: "GET",
-                        headers:
-                            getSupabaseHeaders()
+                        headers: getSupabaseHeaders()
                     }
                 );
 
@@ -344,23 +385,17 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             notificationList.innerHTML =
-
                 '<div class="notification-empty">' +
-
                     '<span>⚠️</span>' +
-
                     '<p class="error-message">' +
                         'Unable to load notifications' +
                     '</p>' +
-
                     '<small>' +
                         escapeHTML(error.message) +
                     '</small>' +
-
                 '</div>';
 
             if (notificationStatus) {
-
                 notificationStatus.textContent =
                     "● Connection Error";
             }
@@ -372,9 +407,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // DISPLAY NOTIFICATIONS
     // ==================================================
 
-    function displayNotifications(
-        notifications
-    ) {
+    function displayNotifications(notifications) {
 
         if (!notificationList) {
             return;
@@ -386,17 +419,12 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             notificationList.innerHTML =
-
                 '<div class="notification-empty">' +
-
                     '<span>🔔</span>' +
-
                     '<p>No notifications yet</p>' +
-
                     '<small>' +
                         'Notifications from the Android app will appear here.' +
                     '</small>' +
-
                 '</div>';
 
             return;
@@ -449,14 +477,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         new Date(receivedAt);
 
                     if (!isNaN(date.getTime())) {
-
                         formattedTime =
                             date.toLocaleString();
                     }
                 }
 
                 card.innerHTML =
-
                     '<div class="notification-card-top">' +
 
                         '<div class="notification-app">' +
@@ -484,6 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     '</div>';
 
                 notificationList.appendChild(card);
+
             }
         );
     }
@@ -500,7 +527,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (locationStatus) {
-
             locationStatus.textContent =
                 "● Connecting...";
         }
@@ -519,8 +545,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     url,
                     {
                         method: "GET",
-                        headers:
-                            getSupabaseHeaders()
+                        headers: getSupabaseHeaders()
                     }
                 );
 
@@ -576,7 +601,6 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             locationList.innerHTML =
-
                 '<div class="location-empty">' +
 
                     '<span>⚠️</span>' +
@@ -604,9 +628,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // DISPLAY LOCATIONS
     // ==================================================
 
-    function displayLocations(
-        locations
-    ) {
+    function displayLocations(locations) {
 
         if (!locationList) {
             return;
@@ -618,7 +640,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             locationList.innerHTML =
-
                 '<div class="location-empty">' +
 
                     '<span>📍</span>' +
@@ -667,7 +688,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (location.created_at) {
 
                     const date =
-                        new Date(location.created_at);
+                        new Date(
+                            location.created_at
+                        );
 
                     if (!isNaN(date.getTime())) {
 
@@ -695,7 +718,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 card.innerHTML =
-
                     '<div class="location-card-top">' +
 
                         '<div class="notification-app">' +
@@ -761,6 +783,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     '</div>';
 
                 locationList.appendChild(card);
+
             }
         );
     }
@@ -777,7 +800,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (photoStatus) {
-
             photoStatus.textContent =
                 "● Connecting...";
         }
@@ -786,7 +808,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const listUrl =
                 SUPABASE_URL +
-                "/storage/v1/object/list/camera-photos";
+                "/storage/v1/object/list/" +
+                CAMERA_BUCKET;
 
             const response =
                 await fetch(
@@ -849,7 +872,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 displayPhotos([]);
 
                 if (photoStatus) {
-
                     photoStatus.textContent =
                         "● Connected • 0 photos";
                 }
@@ -857,14 +879,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
+
+            // ==================================================
+            // CREATE PHOTO ARRAY
+            // ==================================================
+
             const photos = [];
+
+
+            // ==================================================
+            // CREATE SIGNED URL FOR EACH PHOTO
+            // ==================================================
 
             for (const file of files) {
 
                 if (
-                    !file.name ||
-                    file.id === null &&
-                    !file.metadata
+                    !file ||
+                    !file.name
                 ) {
                     continue;
                 }
@@ -877,8 +908,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (signedUrl) {
 
                     photos.push({
-                        name: file.name,
-                        url: signedUrl,
+
+                        name:
+                            file.name,
+
+                        url:
+                            signedUrl,
+
                         created_at:
                             file.created_at ||
                             file.updated_at ||
@@ -886,6 +922,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
             }
+
+
+            // ==================================================
+            // DISPLAY PHOTOS
+            // ==================================================
 
             displayPhotos(photos);
 
@@ -905,7 +946,6 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             photoList.innerHTML =
-
                 '<div class="photo-empty">' +
 
                     '<span>⚠️</span>' +
@@ -933,16 +973,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // CREATE PRIVATE SIGNED PHOTO URL
     // ==================================================
 
-    async function createSignedPhotoUrl(
-        fileName
-    ) {
+    async function createSignedPhotoUrl(fileName) {
 
         try {
 
             const signUrl =
                 SUPABASE_URL +
-                "/storage/v1/object/sign/camera-photos/" +
+                "/storage/v1/object/sign/" +
+                CAMERA_BUCKET +
+                "/" +
                 encodeURIComponent(fileName);
+
+            console.log(
+                "Creating signed URL:",
+                signUrl
+            );
 
             const response =
                 await fetch(
@@ -962,6 +1007,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const responseText =
                 await response.text();
 
+            console.log(
+                "Signed URL Status:",
+                response.status
+            );
+
             if (!response.ok) {
 
                 console.error(
@@ -973,18 +1023,70 @@ document.addEventListener("DOMContentLoaded", function () {
                 return null;
             }
 
-            const result =
-                JSON.parse(responseText);
+            let result;
 
-            if (!result.signedURL) {
+            try {
+
+                result =
+                    JSON.parse(responseText);
+
+            } catch (error) {
+
+                console.error(
+                    "Invalid signed URL response:",
+                    responseText
+                );
+
                 return null;
             }
 
-            return (
-                SUPABASE_URL +
-                "/storage/v1" +
-                result.signedURL
+
+            // ==================================================
+            // SUPABASE signedURL
+            // ==================================================
+
+            if (result.signedURL) {
+
+                if (
+                    result.signedURL.startsWith("http")
+                ) {
+                    return result.signedURL;
+                }
+
+                return (
+                    SUPABASE_URL +
+                    "/storage/v1" +
+                    result.signedURL
+                );
+            }
+
+
+            // ==================================================
+            // SUPABASE signedUrl
+            // ==================================================
+
+            if (result.signedUrl) {
+
+                if (
+                    result.signedUrl.startsWith("http")
+                ) {
+                    return result.signedUrl;
+                }
+
+                return (
+                    SUPABASE_URL +
+                    "/storage/v1" +
+                    result.signedUrl
+                );
+            }
+
+
+            console.error(
+                "No signed URL returned:",
+                result
             );
+
+            return null;
 
         } catch (error) {
 
@@ -999,7 +1101,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ==================================================
-    // DISPLAY PHOTOS
+    // DISPLAY PRIVATE CAMERA PHOTOS
     // ==================================================
 
     function displayPhotos(photos) {
@@ -1014,7 +1116,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             photoList.innerHTML =
-
                 '<div class="photo-empty">' +
 
                     '<span>📷</span>' +
@@ -1022,7 +1123,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     '<p>No photos yet</p>' +
 
                     '<small>' +
-                        'Photos captured by the Android app will appear here.' +
+                        'Photos captured by the Android camera will appear here.' +
                     '</small>' +
 
                 '</div>';
@@ -1031,6 +1132,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         photoList.innerHTML = "";
+
+
+        // ==================================================
+        // PHOTO GRID
+        // ==================================================
+
+        const grid =
+            document.createElement("div");
+
+        grid.className =
+            "photo-grid";
+
 
         photos.forEach(
             function (photo) {
@@ -1041,13 +1154,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 card.className =
                     "photo-card";
 
+
+                // ==================================================
+                // TIME
+                // ==================================================
+
                 let formattedTime =
                     "Unknown time";
 
                 if (photo.created_at) {
 
                     const date =
-                        new Date(photo.created_at);
+                        new Date(
+                            photo.created_at
+                        );
 
                     if (!isNaN(date.getTime())) {
 
@@ -1056,37 +1176,190 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
 
-                card.innerHTML =
 
-                    '<div class="photo-card-top">' +
+                // ==================================================
+                // PHOTO IMAGE
+                // ==================================================
 
-                        '<strong>📷 Camera Photo</strong>' +
+                const image =
+                    document.createElement("img");
 
-                        '<span>' +
-                            escapeHTML(formattedTime) +
-                        '</span>' +
+                image.src =
+                    photo.url;
 
-                    '</div>' +
+                image.alt =
+                    "Camera Photo";
 
-                    '<img ' +
-                        'src="' +
-                            escapeHTML(photo.url) +
-                        '" ' +
-                        'alt="Camera Photo" ' +
-                        'loading="lazy">' +
+                image.loading =
+                    "lazy";
+
+
+                image.style.cursor =
+                    "pointer";
+
+
+                // ==================================================
+                // CLICK IMAGE TO OPEN
+                // ==================================================
+
+                image.addEventListener(
+                    "click",
+                    function () {
+
+                        window.open(
+                            photo.url,
+                            "_blank",
+                            "noopener,noreferrer"
+                        );
+
+                    }
+                );
+
+
+                // ==================================================
+                // IMAGE ERROR
+                // ==================================================
+
+                image.onerror =
+                    function () {
+
+                        console.error(
+                            "Photo failed to load:",
+                            photo.url
+                        );
+
+                        image.alt =
+                            "Unable to load photo";
+
+                    };
+
+
+                // ==================================================
+                // TOP
+                // ==================================================
+
+                const top =
+                    document.createElement("div");
+
+                top.className =
+                    "photo-card-top";
+
+                top.innerHTML =
+                    '<strong>📷 Camera Photo</strong>' +
+
+                    '<span>' +
+                        escapeHTML(
+                            formattedTime
+                        ) +
+                    '</span>';
+
+
+                // ==================================================
+                // INFO
+                // ==================================================
+
+                const info =
+                    document.createElement("div");
+
+                info.className =
+                    "photo-info";
+
+                info.innerHTML =
 
                     '<div class="photo-name">' +
-                        escapeHTML(photo.name) +
+                        escapeHTML(
+                            photo.name
+                        ) +
+                    '</div>' +
+
+                    '<div class="photo-time">' +
+                        escapeHTML(
+                            formattedTime
+                        ) +
                     '</div>';
 
-                photoList.appendChild(card);
+
+                // ==================================================
+                // OPEN PHOTO BUTTON
+                // ==================================================
+
+                const openButton =
+                    document.createElement("a");
+
+                openButton.className =
+                    "open-photo";
+
+                openButton.href =
+                    photo.url;
+
+                openButton.target =
+                    "_blank";
+
+                openButton.rel =
+                    "noopener noreferrer";
+
+                openButton.textContent =
+                    "Open Photo";
+
+
+                info.appendChild(
+                    openButton
+                );
+
+
+                // ==================================================
+                // BUILD CARD
+                // ==================================================
+
+                card.appendChild(
+                    top
+                );
+
+                card.appendChild(
+                    image
+                );
+
+                card.appendChild(
+                    info
+                );
+
+                grid.appendChild(
+                    card
+                );
+
             }
+        );
+
+
+        photoList.appendChild(
+            grid
         );
     }
 
 
     // ==================================================
-    // AUTOMATIC UPDATE
+    // FIRST LOAD
+    // ==================================================
+
+    if (accessToken) {
+
+        if (notificationList) {
+            loadNotifications();
+        }
+
+        if (locationList) {
+            loadLocations();
+        }
+
+        if (photoList) {
+            loadPhotos();
+        }
+    }
+
+
+    // ==================================================
+    // AUTO REFRESH
+    // 10 SECONDS
     // ==================================================
 
     if (
@@ -1113,26 +1386,6 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             10000
         );
-    }
-
-
-    // ==================================================
-    // FIRST LOAD
-    // ==================================================
-
-    if (accessToken) {
-
-        if (notificationList) {
-            loadNotifications();
-        }
-
-        if (locationList) {
-            loadLocations();
-        }
-
-        if (photoList) {
-            loadPhotos();
-        }
     }
 
 });
