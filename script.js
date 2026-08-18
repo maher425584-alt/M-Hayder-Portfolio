@@ -1,5 +1,6 @@
 // ==================================================
-// MY HAYDER WEBSITE + PRIVATE DASHBOARD
+// MY HAYDER WEBSITE + PRIVATE PARENT DASHBOARD
+// Notifications + Locations + Private Photos
 // ==================================================
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -39,30 +40,21 @@ document.addEventListener("DOMContentLoaded", function () {
             document.body.classList.toggle("dark");
 
             if (document.body.classList.contains("dark")) {
-
                 themeToggle.textContent = "🌙";
                 localStorage.setItem("theme", "dark");
-
             } else {
-
                 themeToggle.textContent = "☀️";
                 localStorage.setItem("theme", "light");
-
             }
 
         });
 
-
-        const savedTheme =
-            localStorage.getItem("theme");
+        const savedTheme = localStorage.getItem("theme");
 
         if (savedTheme === "dark") {
-
             document.body.classList.add("dark");
             themeToggle.textContent = "🌙";
-
         }
-
     }
 
 
@@ -70,12 +62,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // CURRENT YEAR
     // ==================================================
 
-    const yearElement =
-        document.getElementById("year");
+    const yearElement = document.getElementById("year");
 
     if (yearElement) {
-        yearElement.textContent =
-            new Date().getFullYear();
+        yearElement.textContent = new Date().getFullYear();
     }
 
 
@@ -103,10 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             entry.target.style.transform =
                                 "translateY(0)";
 
-                            observer.unobserve(
-                                entry.target
-                            );
-
+                            observer.unobserve(entry.target);
                         }
 
                     });
@@ -116,7 +103,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     threshold: 0.15
                 }
             );
-
 
         animatedElements.forEach(function (element) {
 
@@ -129,9 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "opacity 0.6s ease, transform 0.6s ease";
 
             observer.observe(element);
-
         });
-
     }
 
 
@@ -151,9 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ==================================================
 
     const accessToken =
-        sessionStorage.getItem(
-            "parent_access_token"
-        );
+        sessionStorage.getItem("parent_access_token");
 
 
     // ==================================================
@@ -161,54 +143,42 @@ document.addEventListener("DOMContentLoaded", function () {
     // ==================================================
 
     const notificationList =
-        document.getElementById(
-            "notificationList"
-        );
+        document.getElementById("notificationList");
 
     const notificationStatus =
-        document.getElementById(
-            "notificationStatus"
-        );
-
+        document.getElementById("notificationStatus");
 
     const locationList =
-        document.getElementById(
-            "locationList"
-        );
+        document.getElementById("locationList");
 
     const locationStatus =
-        document.getElementById(
-            "locationStatus"
-        );
+        document.getElementById("locationStatus");
 
+    const photoList =
+        document.getElementById("photoList");
+
+    const photoStatus =
+        document.getElementById("photoStatus");
 
     const logoutButton =
-        document.getElementById(
-            "logoutButton"
-        );
+        document.getElementById("logoutButton");
 
 
     // ==================================================
-    // LOGIN SECURITY
+    // PRIVATE DASHBOARD SECURITY
     // ==================================================
 
-    // Sirf dashboard page par login check
-    if (
+    const isDashboard =
         notificationList ||
         locationList ||
-        logoutButton
-    ) {
+        photoList ||
+        logoutButton;
 
-        if (!accessToken) {
+    if (isDashboard && !accessToken) {
 
-            window.location.replace(
-                "login.html"
-            );
+        window.location.replace("login.html");
 
-            return;
-
-        }
-
+        return;
     }
 
 
@@ -237,10 +207,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 window.location.replace(
                     "login.html"
                 );
-
             }
         );
-
     }
 
 
@@ -263,7 +231,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
-
     }
 
 
@@ -273,23 +240,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getSupabaseHeaders() {
 
+        if (!accessToken) {
+            throw new Error("Login session expired");
+        }
+
         return {
 
             "apikey":
                 SUPABASE_KEY,
 
             "Authorization":
-                "Bearer " +
-                (
-                    accessToken ||
-                    SUPABASE_KEY
-                ),
+                "Bearer " + accessToken,
 
             "Content-Type":
                 "application/json"
-
         };
-
     }
 
 
@@ -303,14 +268,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-
         if (notificationStatus) {
-
             notificationStatus.textContent =
                 "● Connecting...";
-
         }
-
 
         try {
 
@@ -320,7 +281,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 "?select=id,device_id,app_name,title,message,received_at" +
                 "&order=received_at.desc" +
                 "&limit=100";
-
 
             const response =
                 await fetch(
@@ -332,16 +292,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 );
 
-
             const responseText =
                 await response.text();
-
 
             console.log(
                 "Notifications Status:",
                 response.status
             );
-
 
             if (!response.ok) {
 
@@ -351,32 +308,25 @@ document.addEventListener("DOMContentLoaded", function () {
                     ": " +
                     responseText
                 );
-
             }
-
 
             let notifications;
 
             try {
 
                 notifications =
-                    JSON.parse(
-                        responseText
-                    );
+                    JSON.parse(responseText);
 
             } catch (error) {
 
                 throw new Error(
                     "Invalid Supabase response"
                 );
-
             }
-
 
             displayNotifications(
                 notifications
             );
-
 
             if (notificationStatus) {
 
@@ -384,18 +334,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     "● Connected • " +
                     notifications.length +
                     " notifications";
-
             }
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Notifications error:",
                 error
             );
-
 
             notificationList.innerHTML =
 
@@ -408,23 +354,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     '</p>' +
 
                     '<small>' +
-                        escapeHTML(
-                            error.message
-                        ) +
+                        escapeHTML(error.message) +
                     '</small>' +
 
                 '</div>';
-
 
             if (notificationStatus) {
 
                 notificationStatus.textContent =
                     "● Connection Error";
-
             }
-
         }
-
     }
 
 
@@ -440,7 +380,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-
         if (
             !Array.isArray(notifications) ||
             notifications.length === 0
@@ -452,9 +391,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     '<span>🔔</span>' +
 
-                    '<p>' +
-                        'No notifications yet' +
-                    '</p>' +
+                    '<p>No notifications yet</p>' +
 
                     '<small>' +
                         'Notifications from the Android app will appear here.' +
@@ -463,25 +400,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 '</div>';
 
             return;
-
         }
 
-
         notificationList.innerHTML = "";
-
 
         notifications.forEach(
             function (notification) {
 
                 const card =
-                    document.createElement(
-                        "div"
-                    );
-
+                    document.createElement("div");
 
                 card.className =
                     "notification-card";
-
 
                 const appName =
                     notification.app_name ||
@@ -489,12 +419,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     notification.package_name ||
                     "Unknown App";
 
-
                 const title =
                     notification.title ||
                     notification.notification_title ||
                     "Notification";
-
 
                 const message =
                     notification.message ||
@@ -502,44 +430,30 @@ document.addEventListener("DOMContentLoaded", function () {
                     notification.notification_text ||
                     "";
 
-
                 const deviceId =
                     notification.device_id ||
                     notification.device ||
                     "Unknown Device";
-
 
                 const receivedAt =
                     notification.received_at ||
                     notification.created_at ||
                     notification.timestamp;
 
-
                 let formattedTime =
                     "Unknown time";
-
 
                 if (receivedAt) {
 
                     const date =
-                        new Date(
-                            receivedAt
-                        );
+                        new Date(receivedAt);
 
-
-                    if (
-                        !isNaN(
-                            date.getTime()
-                        )
-                    ) {
+                    if (!isNaN(date.getTime())) {
 
                         formattedTime =
                             date.toLocaleString();
-
                     }
-
                 }
-
 
                 card.innerHTML =
 
@@ -547,46 +461,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         '<div class="notification-app">' +
                             '📱 ' +
-                            escapeHTML(
-                                appName
-                            ) +
+                            escapeHTML(appName) +
                         '</div>' +
 
                         '<div class="notification-time">' +
-                            escapeHTML(
-                                formattedTime
-                            ) +
+                            escapeHTML(formattedTime) +
                         '</div>' +
 
                     '</div>' +
 
                     '<div class="notification-title">' +
-                        escapeHTML(
-                            title
-                        ) +
+                        escapeHTML(title) +
                     '</div>' +
 
                     '<div class="notification-message">' +
-                        escapeHTML(
-                            message
-                        ) +
+                        escapeHTML(message) +
                     '</div>' +
 
                     '<div class="notification-device">' +
                         'Device: ' +
-                        escapeHTML(
-                            deviceId
-                        ) +
+                        escapeHTML(deviceId) +
                     '</div>';
 
-
-                notificationList.appendChild(
-                    card
-                );
-
+                notificationList.appendChild(card);
             }
         );
-
     }
 
 
@@ -600,14 +499,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-
         if (locationStatus) {
 
             locationStatus.textContent =
                 "● Connecting...";
-
         }
-
 
         try {
 
@@ -617,7 +513,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 "?select=id,created_at,device_id,latitude,longitude" +
                 "&order=created_at.desc" +
                 "&limit=100";
-
 
             const response =
                 await fetch(
@@ -629,16 +524,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 );
 
-
             const responseText =
                 await response.text();
-
 
             console.log(
                 "Locations Status:",
                 response.status
             );
-
 
             if (!response.ok) {
 
@@ -648,32 +540,25 @@ document.addEventListener("DOMContentLoaded", function () {
                     ": " +
                     responseText
                 );
-
             }
-
 
             let locations;
 
             try {
 
                 locations =
-                    JSON.parse(
-                        responseText
-                    );
+                    JSON.parse(responseText);
 
             } catch (error) {
 
                 throw new Error(
                     "Invalid Supabase response"
                 );
-
             }
-
 
             displayLocations(
                 locations
             );
-
 
             if (locationStatus) {
 
@@ -681,18 +566,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     "● Connected • " +
                     locations.length +
                     " locations";
-
             }
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Locations error:",
                 error
             );
-
 
             locationList.innerHTML =
 
@@ -705,23 +586,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     '</p>' +
 
                     '<small>' +
-                        escapeHTML(
-                            error.message
-                        ) +
+                        escapeHTML(error.message) +
                     '</small>' +
 
                 '</div>';
-
 
             if (locationStatus) {
 
                 locationStatus.textContent =
                     "● Connection Error";
-
             }
-
         }
-
     }
 
 
@@ -737,7 +612,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-
         if (
             !Array.isArray(locations) ||
             locations.length === 0
@@ -749,9 +623,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     '<span>📍</span>' +
 
-                    '<p>' +
-                        'No locations yet' +
-                    '</p>' +
+                    '<p>No locations yet</p>' +
 
                     '<small>' +
                         'Location data from the Android app will appear here.' +
@@ -760,30 +632,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 '</div>';
 
             return;
-
         }
 
-
         locationList.innerHTML = "";
-
 
         locations.forEach(
             function (location) {
 
                 const card =
-                    document.createElement(
-                        "div"
-                    );
-
+                    document.createElement("div");
 
                 card.className =
                     "location-card";
 
-
                 const deviceId =
                     location.device_id ||
                     "Unknown Device";
-
 
                 const latitude =
                     location.latitude !== null &&
@@ -791,42 +655,28 @@ document.addEventListener("DOMContentLoaded", function () {
                         ? location.latitude
                         : "N/A";
 
-
                 const longitude =
                     location.longitude !== null &&
                     location.longitude !== undefined
                         ? location.longitude
                         : "N/A";
 
-
                 let formattedTime =
                     "Unknown time";
-
 
                 if (location.created_at) {
 
                     const date =
-                        new Date(
-                            location.created_at
-                        );
+                        new Date(location.created_at);
 
-
-                    if (
-                        !isNaN(
-                            date.getTime()
-                        )
-                    ) {
+                    if (!isNaN(date.getTime())) {
 
                         formattedTime =
                             date.toLocaleString();
-
                     }
-
                 }
 
-
                 let mapLink = "#";
-
 
                 if (
                     location.latitude !== null &&
@@ -842,9 +692,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             "," +
                             location.longitude
                         );
-
                 }
-
 
                 card.innerHTML =
 
@@ -855,9 +703,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         '</div>' +
 
                         '<div class="location-time">' +
-                            escapeHTML(
-                                formattedTime
-                            ) +
+                            escapeHTML(formattedTime) +
                         '</div>' +
 
                     '</div>' +
@@ -871,9 +717,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             '</span>' +
 
                             '<span class="coordinate-value">' +
-                                escapeHTML(
-                                    latitude
-                                ) +
+                                escapeHTML(latitude) +
                             '</span>' +
 
                         '</div>' +
@@ -885,9 +729,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             '</span>' +
 
                             '<span class="coordinate-value">' +
-                                escapeHTML(
-                                    longitude
-                                ) +
+                                escapeHTML(longitude) +
                             '</span>' +
 
                         '</div>' +
@@ -897,16 +739,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     '<div class="location-device">' +
 
                         'ID: ' +
-                        escapeHTML(
-                            location.id
-                        ) +
+                        escapeHTML(location.id) +
 
                         '<br>' +
 
                         'Device: ' +
-                        escapeHTML(
-                            deviceId
-                        ) +
+                        escapeHTML(deviceId) +
 
                     '</div>' +
 
@@ -922,14 +760,328 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     '</div>';
 
-
-                locationList.appendChild(
-                    card
-                );
-
+                locationList.appendChild(card);
             }
         );
+    }
 
+
+    // ==================================================
+    // LOAD PRIVATE CAMERA PHOTOS
+    // ==================================================
+
+    async function loadPhotos() {
+
+        if (!photoList) {
+            return;
+        }
+
+        if (photoStatus) {
+
+            photoStatus.textContent =
+                "● Connecting...";
+        }
+
+        try {
+
+            const listUrl =
+                SUPABASE_URL +
+                "/storage/v1/object/list/camera-photos";
+
+            const response =
+                await fetch(
+                    listUrl,
+                    {
+                        method: "POST",
+
+                        headers:
+                            getSupabaseHeaders(),
+
+                        body: JSON.stringify({
+                            prefix: "",
+                            limit: 100,
+                            offset: 0,
+                            sortBy: {
+                                column: "created_at",
+                                order: "desc"
+                            }
+                        })
+                    }
+                );
+
+            const responseText =
+                await response.text();
+
+            console.log(
+                "Photos List Status:",
+                response.status
+            );
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Photo storage error " +
+                    response.status +
+                    ": " +
+                    responseText
+                );
+            }
+
+            let files;
+
+            try {
+
+                files =
+                    JSON.parse(responseText);
+
+            } catch (error) {
+
+                throw new Error(
+                    "Invalid photo storage response"
+                );
+            }
+
+            if (
+                !Array.isArray(files) ||
+                files.length === 0
+            ) {
+
+                displayPhotos([]);
+
+                if (photoStatus) {
+
+                    photoStatus.textContent =
+                        "● Connected • 0 photos";
+                }
+
+                return;
+            }
+
+            const photos = [];
+
+            for (const file of files) {
+
+                if (
+                    !file.name ||
+                    file.id === null &&
+                    !file.metadata
+                ) {
+                    continue;
+                }
+
+                const signedUrl =
+                    await createSignedPhotoUrl(
+                        file.name
+                    );
+
+                if (signedUrl) {
+
+                    photos.push({
+                        name: file.name,
+                        url: signedUrl,
+                        created_at:
+                            file.created_at ||
+                            file.updated_at ||
+                            null
+                    });
+                }
+            }
+
+            displayPhotos(photos);
+
+            if (photoStatus) {
+
+                photoStatus.textContent =
+                    "● Connected • " +
+                    photos.length +
+                    " photos";
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Photos error:",
+                error
+            );
+
+            photoList.innerHTML =
+
+                '<div class="photo-empty">' +
+
+                    '<span>⚠️</span>' +
+
+                    '<p class="error-message">' +
+                        'Unable to load photos' +
+                    '</p>' +
+
+                    '<small>' +
+                        escapeHTML(error.message) +
+                    '</small>' +
+
+                '</div>';
+
+            if (photoStatus) {
+
+                photoStatus.textContent =
+                    "● Connection Error";
+            }
+        }
+    }
+
+
+    // ==================================================
+    // CREATE PRIVATE SIGNED PHOTO URL
+    // ==================================================
+
+    async function createSignedPhotoUrl(
+        fileName
+    ) {
+
+        try {
+
+            const signUrl =
+                SUPABASE_URL +
+                "/storage/v1/object/sign/camera-photos/" +
+                encodeURIComponent(fileName);
+
+            const response =
+                await fetch(
+                    signUrl,
+                    {
+                        method: "POST",
+
+                        headers:
+                            getSupabaseHeaders(),
+
+                        body: JSON.stringify({
+                            expiresIn: 3600
+                        })
+                    }
+                );
+
+            const responseText =
+                await response.text();
+
+            if (!response.ok) {
+
+                console.error(
+                    "Signed URL error:",
+                    response.status,
+                    responseText
+                );
+
+                return null;
+            }
+
+            const result =
+                JSON.parse(responseText);
+
+            if (!result.signedURL) {
+                return null;
+            }
+
+            return (
+                SUPABASE_URL +
+                "/storage/v1" +
+                result.signedURL
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Signed photo error:",
+                error
+            );
+
+            return null;
+        }
+    }
+
+
+    // ==================================================
+    // DISPLAY PHOTOS
+    // ==================================================
+
+    function displayPhotos(photos) {
+
+        if (!photoList) {
+            return;
+        }
+
+        if (
+            !Array.isArray(photos) ||
+            photos.length === 0
+        ) {
+
+            photoList.innerHTML =
+
+                '<div class="photo-empty">' +
+
+                    '<span>📷</span>' +
+
+                    '<p>No photos yet</p>' +
+
+                    '<small>' +
+                        'Photos captured by the Android app will appear here.' +
+                    '</small>' +
+
+                '</div>';
+
+            return;
+        }
+
+        photoList.innerHTML = "";
+
+        photos.forEach(
+            function (photo) {
+
+                const card =
+                    document.createElement("div");
+
+                card.className =
+                    "photo-card";
+
+                let formattedTime =
+                    "Unknown time";
+
+                if (photo.created_at) {
+
+                    const date =
+                        new Date(photo.created_at);
+
+                    if (!isNaN(date.getTime())) {
+
+                        formattedTime =
+                            date.toLocaleString();
+                    }
+                }
+
+                card.innerHTML =
+
+                    '<div class="photo-card-top">' +
+
+                        '<strong>📷 Camera Photo</strong>' +
+
+                        '<span>' +
+                            escapeHTML(formattedTime) +
+                        '</span>' +
+
+                    '</div>' +
+
+                    '<img ' +
+                        'src="' +
+                            escapeHTML(photo.url) +
+                        '" ' +
+                        'alt="Camera Photo" ' +
+                        'loading="lazy">' +
+
+                    '<div class="photo-name">' +
+                        escapeHTML(photo.name) +
+                    '</div>';
+
+                photoList.appendChild(card);
+            }
+        );
     }
 
 
@@ -939,7 +1091,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (
         notificationList ||
-        locationList
+        locationList ||
+        photoList
     ) {
 
         setInterval(
@@ -953,10 +1106,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     loadLocations();
                 }
 
+                if (photoList) {
+                    loadPhotos();
+                }
+
             },
             10000
         );
-
     }
 
 
@@ -974,6 +1130,9 @@ document.addEventListener("DOMContentLoaded", function () {
             loadLocations();
         }
 
+        if (photoList) {
+            loadPhotos();
+        }
     }
 
 });

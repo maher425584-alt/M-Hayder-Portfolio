@@ -1,13 +1,19 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Private Parent Dashboard | M Hayder</title>
 
     <style>
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -131,7 +137,7 @@
         }
 
         /* =========================
-           DASHBOARD CARD
+           CARD
         ========================= */
 
         .dashboard-card {
@@ -158,7 +164,8 @@
         }
 
         .notification-list,
-        .location-list {
+        .location-list,
+        .photo-list {
             padding: 20px;
         }
 
@@ -172,10 +179,6 @@
             padding: 18px;
             margin-bottom: 14px;
             background: #fafafa;
-        }
-
-        .notification-card:last-child {
-            margin-bottom: 0;
         }
 
         .notification-card-top {
@@ -229,10 +232,6 @@
             background: #fafafa;
         }
 
-        .location-card:last-child {
-            margin-bottom: 0;
-        }
-
         .location-card-top {
             display: flex;
             justify-content: space-between;
@@ -244,7 +243,6 @@
         .location-time {
             color: #6b7280;
             font-size: 12px;
-            text-align: right;
         }
 
         .location-coordinates {
@@ -287,30 +285,76 @@
             font-weight: 700;
         }
 
-        .location-device a:hover {
-            text-decoration: underline;
+        /* =========================
+           PHOTOS
+        ========================= */
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .photo-card {
+            background: #fafafa;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            background: #e5e7eb;
+        }
+
+        .photo-info {
+            padding: 12px;
+        }
+
+        .photo-name {
+            font-size: 13px;
+            font-weight: 700;
+            word-break: break-all;
+        }
+
+        .photo-time {
+            margin-top: 6px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .open-photo {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 7px 10px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 700;
         }
 
         /* =========================
-           EMPTY / ERROR
+           EMPTY
         ========================= */
 
-        .notification-empty,
-        .location-empty {
+        .empty {
             text-align: center;
-            padding: 45px 20px;
+            padding: 50px 20px;
             color: #6b7280;
         }
 
-        .notification-empty span,
-        .location-empty span {
+        .empty-icon {
             display: block;
-            font-size: 35px;
+            font-size: 40px;
             margin-bottom: 12px;
         }
 
-        .notification-empty p,
-        .location-empty p {
+        .empty p {
             font-weight: 700;
             color: #374151;
             margin-bottom: 6px;
@@ -324,7 +368,18 @@
            MOBILE
         ========================= */
 
-        @media (max-width: 650px) {
+        @media (max-width: 750px) {
+
+            .photo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .location-coordinates {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
 
             .header-inner {
                 align-items: flex-start;
@@ -344,12 +399,12 @@
             }
 
             .tabs {
-                gap: 6px;
+                gap: 5px;
             }
 
             .tab-button {
-                padding: 12px 8px;
-                font-size: 14px;
+                padding: 12px 5px;
+                font-size: 13px;
             }
 
             .notification-card-top,
@@ -358,17 +413,23 @@
                 flex-direction: column;
             }
 
-            .notification-time,
-            .location-time {
+            .notification-time {
                 text-align: left;
             }
 
-            .location-coordinates {
+            .photo-grid {
                 grid-template-columns: 1fr;
             }
+
+            .photo-card img {
+                height: 260px;
+            }
         }
+
     </style>
+
 </head>
+
 
 <body>
 
@@ -377,14 +438,17 @@
     <div class="header-inner">
 
         <div class="brand">
-            M Hayder <span>• Private Dashboard</span>
+            M Hayder
+            <span>• Private Dashboard</span>
         </div>
 
         <button
             id="logoutButton"
             class="logout-btn"
             type="button">
+
             Logout
+
         </button>
 
     </div>
@@ -401,7 +465,7 @@
         <h1>Parent Dashboard</h1>
 
         <p>
-            Manage notifications and locations from the connected Android device.
+            Notifications, locations and camera photos from the connected Android device.
         </p>
 
     </div>
@@ -432,11 +496,21 @@
 
         </button>
 
+
+        <button
+            class="tab-button"
+            data-tab="photosTab"
+            type="button">
+
+            📷 Photos
+
+        </button>
+
     </div>
 
 
     <!-- =========================
-         NOTIFICATIONS TAB
+         NOTIFICATIONS
     ========================= -->
 
     <section
@@ -447,7 +521,9 @@
 
             <div class="dashboard-top">
 
-                <h2>Recent Notifications</h2>
+                <h2>
+                    Recent Notifications
+                </h2>
 
                 <span
                     id="notificationStatus"
@@ -459,14 +535,15 @@
 
             </div>
 
-
             <div
                 id="notificationList"
                 class="notification-list">
 
-                <div class="notification-empty">
+                <div class="empty">
 
-                    <span>🔄</span>
+                    <span class="empty-icon">
+                        🔄
+                    </span>
 
                     <p>
                         Loading notifications...
@@ -482,7 +559,7 @@
 
 
     <!-- =========================
-         LOCATION TAB
+         LOCATIONS
     ========================= -->
 
     <section
@@ -493,7 +570,9 @@
 
             <div class="dashboard-top">
 
-                <h2>Locations</h2>
+                <h2>
+                    Device Locations
+                </h2>
 
                 <span
                     id="locationStatus"
@@ -505,14 +584,15 @@
 
             </div>
 
-
             <div
                 id="locationList"
                 class="location-list">
 
-                <div class="location-empty">
+                <div class="empty">
 
-                    <span>📍</span>
+                    <span class="empty-icon">
+                        📍
+                    </span>
 
                     <p>
                         Loading locations...
@@ -526,75 +606,1231 @@
 
     </section>
 
+
+    <!-- =========================
+         PHOTOS
+    ========================= -->
+
+    <section
+        id="photosTab"
+        class="tab-content">
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-top">
+
+                <h2>
+                    Camera Photos
+                </h2>
+
+                <span
+                    id="photoStatus"
+                    class="status">
+
+                    Connecting...
+
+                </span>
+
+            </div>
+
+            <div
+                id="photoList"
+                class="photo-list">
+
+                <div class="empty">
+
+                    <span class="empty-icon">
+                        📷
+                    </span>
+
+                    <p>
+                        Loading photos...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
 </main>
 
 
-<!--
-    Existing script.js remains unchanged.
--->
-
-<script src="script.js"></script>
-
-
-<!--
-    ONLY TAB SWITCHING.
-    This does NOT replace script.js.
--->
-
 <script>
 
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-        const tabButtons =
-            document.querySelectorAll(".tab-button");
+    /* ==================================================
+       SUPABASE
+    ================================================== */
 
-        const tabContents =
-            document.querySelectorAll(".tab-content");
+    const SUPABASE_URL =
+        "https://wfwxidbdyqwkqsbaxtlj.supabase.co";
+
+    const SUPABASE_KEY =
+        "sb_publishable_3OKrT7wF_P5P6vitgWpFJw_Opq-NvTr";
+
+    const BUCKET =
+        "camera-photos";
 
 
-        tabButtons.forEach(function (button) {
+    /* ==================================================
+       SESSION
+    ================================================== */
 
-            button.addEventListener("click", function () {
+    const accessToken =
+        sessionStorage.getItem(
+            "parent_access_token"
+        );
+
+
+    /* ==================================================
+       ELEMENTS
+    ================================================== */
+
+    const notificationList =
+        document.getElementById(
+            "notificationList"
+        );
+
+    const notificationStatus =
+        document.getElementById(
+            "notificationStatus"
+        );
+
+    const locationList =
+        document.getElementById(
+            "locationList"
+        );
+
+    const locationStatus =
+        document.getElementById(
+            "locationStatus"
+        );
+
+    const photoList =
+        document.getElementById(
+            "photoList"
+        );
+
+    const photoStatus =
+        document.getElementById(
+            "photoStatus"
+        );
+
+    const logoutButton =
+        document.getElementById(
+            "logoutButton"
+        );
+
+
+    /* ==================================================
+       LOGIN CHECK
+    ================================================== */
+
+    if (!accessToken) {
+
+        window.location.replace(
+            "login.html"
+        );
+
+        return;
+
+    }
+
+
+    /* ==================================================
+       HEADERS
+    ================================================== */
+
+    function getHeaders() {
+
+        return {
+
+            "apikey":
+                SUPABASE_KEY,
+
+            "Authorization":
+                "Bearer " +
+                accessToken,
+
+            "Content-Type":
+                "application/json"
+
+        };
+
+    }
+
+
+    /* ==================================================
+       HTML ESCAPE
+    ================================================== */
+
+    function escapeHTML(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
+            return "";
+
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    /* ==================================================
+       LOGOUT
+    ================================================== */
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            function () {
+
+                sessionStorage.removeItem(
+                    "parent_access_token"
+                );
+
+                sessionStorage.removeItem(
+                    "parent_refresh_token"
+                );
+
+                sessionStorage.removeItem(
+                    "parent_user"
+                );
+
+                window.location.replace(
+                    "login.html"
+                );
+
+            }
+        );
+
+    }
+
+
+    /* ==================================================
+       TABS
+    ================================================== */
+
+    const tabButtons =
+        document.querySelectorAll(
+            ".tab-button"
+        );
+
+    const tabContents =
+        document.querySelectorAll(
+            ".tab-content"
+        );
+
+
+    tabButtons.forEach(function (button) {
+
+        button.addEventListener(
+            "click",
+            function () {
 
                 const targetId =
-                    button.getAttribute("data-tab");
+                    button.getAttribute(
+                        "data-tab"
+                    );
 
 
-                tabButtons.forEach(function (item) {
+                tabButtons.forEach(
+                    function (item) {
 
-                    item.classList.remove("active");
+                        item.classList.remove(
+                            "active"
+                        );
 
-                });
-
-
-                tabContents.forEach(function (content) {
-
-                    content.classList.remove("active");
-
-                });
+                    }
+                );
 
 
-                button.classList.add("active");
+                tabContents.forEach(
+                    function (content) {
+
+                        content.classList.remove(
+                            "active"
+                        );
+
+                    }
+                );
+
+
+                button.classList.add(
+                    "active"
+                );
 
 
                 const target =
-                    document.getElementById(targetId);
+                    document.getElementById(
+                        targetId
+                    );
 
 
                 if (target) {
 
-                    target.classList.add("active");
+                    target.classList.add(
+                        "active"
+                    );
 
                 }
 
-            });
-
-        });
+            }
+        );
 
     });
+
+
+    /* ==================================================
+       LOAD NOTIFICATIONS
+    ================================================== */
+
+    async function loadNotifications() {
+
+        try {
+
+            notificationStatus.textContent =
+                "● Connecting...";
+
+
+            const url =
+                SUPABASE_URL +
+                "/rest/v1/notifications" +
+                "?select=id,device_id,app_name,title,message,received_at" +
+                "&order=received_at.desc" +
+                "&limit=100";
+
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "GET",
+                        headers: getHeaders()
+                    }
+                );
+
+
+            const text =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Supabase error " +
+                    response.status +
+                    ": " +
+                    text
+                );
+
+            }
+
+
+            const data =
+                JSON.parse(text);
+
+
+            displayNotifications(data);
+
+
+            notificationStatus.textContent =
+                "● Connected • " +
+                data.length +
+                " notifications";
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Notification error:",
+                error
+            );
+
+
+            notificationList.innerHTML =
+
+                '<div class="empty">' +
+
+                    '<span class="empty-icon">⚠️</span>' +
+
+                    '<p class="error-message">' +
+                        'Unable to load notifications' +
+                    '</p>' +
+
+                    '<small>' +
+                        escapeHTML(error.message) +
+                    '</small>' +
+
+                '</div>';
+
+
+            notificationStatus.textContent =
+                "● Connection Error";
+
+        }
+
+    }
+
+
+    /* ==================================================
+       DISPLAY NOTIFICATIONS
+    ================================================== */
+
+    function displayNotifications(
+        notifications
+    ) {
+
+        if (
+            !Array.isArray(notifications) ||
+            notifications.length === 0
+        ) {
+
+            notificationList.innerHTML =
+
+                '<div class="empty">' +
+
+                    '<span class="empty-icon">🔔</span>' +
+
+                    '<p>No notifications yet</p>' +
+
+                    '<small>' +
+                        'Notifications will appear here.' +
+                    '</small>' +
+
+                '</div>';
+
+            return;
+
+        }
+
+
+        notificationList.innerHTML = "";
+
+
+        notifications.forEach(
+            function (item) {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "notification-card";
+
+
+                const appName =
+                    item.app_name ||
+                    "Unknown App";
+
+
+                const title =
+                    item.title ||
+                    "Notification";
+
+
+                const message =
+                    item.message ||
+                    "";
+
+
+                const device =
+                    item.device_id ||
+                    "Unknown Device";
+
+
+                let time =
+                    "Unknown time";
+
+
+                if (item.received_at) {
+
+                    const date =
+                        new Date(
+                            item.received_at
+                        );
+
+
+                    if (
+                        !isNaN(
+                            date.getTime()
+                        )
+                    ) {
+
+                        time =
+                            date.toLocaleString();
+
+                    }
+
+                }
+
+
+                card.innerHTML =
+
+                    '<div class="notification-card-top">' +
+
+                        '<div class="notification-app">' +
+                            '📱 ' +
+                            escapeHTML(appName) +
+                        '</div>' +
+
+                        '<div class="notification-time">' +
+                            escapeHTML(time) +
+                        '</div>' +
+
+                    '</div>' +
+
+                    '<div class="notification-title">' +
+                        escapeHTML(title) +
+                    '</div>' +
+
+                    '<div class="notification-message">' +
+                        escapeHTML(message) +
+                    '</div>' +
+
+                    '<div class="notification-device">' +
+                        'Device: ' +
+                        escapeHTML(device) +
+                    '</div>';
+
+
+                notificationList.appendChild(
+                    card
+                );
+
+            }
+        );
+
+    }
+
+
+    /* ==================================================
+       LOAD LOCATIONS
+    ================================================== */
+
+    async function loadLocations() {
+
+        try {
+
+            locationStatus.textContent =
+                "● Connecting...";
+
+
+            const url =
+                SUPABASE_URL +
+                "/rest/v1/locations" +
+                "?select=id,created_at,device_id,latitude,longitude" +
+                "&order=created_at.desc" +
+                "&limit=100";
+
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "GET",
+                        headers: getHeaders()
+                    }
+                );
+
+
+            const text =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Supabase error " +
+                    response.status +
+                    ": " +
+                    text
+                );
+
+            }
+
+
+            const data =
+                JSON.parse(text);
+
+
+            displayLocations(data);
+
+
+            locationStatus.textContent =
+                "● Connected • " +
+                data.length +
+                " locations";
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Location error:",
+                error
+            );
+
+
+            locationList.innerHTML =
+
+                '<div class="empty">' +
+
+                    '<span class="empty-icon">⚠️</span>' +
+
+                    '<p class="error-message">' +
+                        'Unable to load locations' +
+                    '</p>' +
+
+                    '<small>' +
+                        escapeHTML(error.message) +
+                    '</small>' +
+
+                '</div>';
+
+
+            locationStatus.textContent =
+                "● Connection Error";
+
+        }
+
+    }
+
+
+    /* ==================================================
+       DISPLAY LOCATIONS
+    ================================================== */
+
+    function displayLocations(
+        locations
+    ) {
+
+        if (
+            !Array.isArray(locations) ||
+            locations.length === 0
+        ) {
+
+            locationList.innerHTML =
+
+                '<div class="empty">' +
+
+                    '<span class="empty-icon">📍</span>' +
+
+                    '<p>No locations yet</p>' +
+
+                    '<small>' +
+                        'Location data will appear here.' +
+                    '</small>' +
+
+                '</div>';
+
+            return;
+
+        }
+
+
+        locationList.innerHTML = "";
+
+
+        locations.forEach(
+            function (item) {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "location-card";
+
+
+                const latitude =
+                    item.latitude;
+
+
+                const longitude =
+                    item.longitude;
+
+
+                const device =
+                    item.device_id ||
+                    "Unknown Device";
+
+
+                let time =
+                    "Unknown time";
+
+
+                if (item.created_at) {
+
+                    const date =
+                        new Date(
+                            item.created_at
+                        );
+
+
+                    if (
+                        !isNaN(
+                            date.getTime()
+                        )
+                    ) {
+
+                        time =
+                            date.toLocaleString();
+
+                    }
+
+                }
+
+
+                const mapLink =
+                    "https://www.google.com/maps?q=" +
+                    encodeURIComponent(
+                        latitude +
+                        "," +
+                        longitude
+                    );
+
+
+                card.innerHTML =
+
+                    '<div class="location-card-top">' +
+
+                        '<div class="notification-app">' +
+                            '📍 Location' +
+                        '</div>' +
+
+                        '<div class="location-time">' +
+                            escapeHTML(time) +
+                        '</div>' +
+
+                    '</div>' +
+
+                    '<div class="location-coordinates">' +
+
+                        '<div class="coordinate-box">' +
+
+                            '<span class="coordinate-label">' +
+                                'Latitude' +
+                            '</span>' +
+
+                            '<span class="coordinate-value">' +
+                                escapeHTML(latitude) +
+                            '</span>' +
+
+                        '</div>' +
+
+                        '<div class="coordinate-box">' +
+
+                            '<span class="coordinate-label">' +
+                                'Longitude' +
+                            '</span>' +
+
+                            '<span class="coordinate-value">' +
+                                escapeHTML(longitude) +
+                            '</span>' +
+
+                        '</div>' +
+
+                    '</div>' +
+
+                    '<div class="location-device">' +
+
+                        'Device: ' +
+                        escapeHTML(device) +
+
+                        '<br><br>' +
+
+                        '<a href="' +
+                            mapLink +
+                            '" target="_blank" rel="noopener noreferrer">' +
+
+                            '🗺️ Open in Google Maps' +
+
+                        '</a>' +
+
+                    '</div>';
+
+
+                locationList.appendChild(
+                    card
+                );
+
+            }
+        );
+
+    }
+
+
+    /* ==================================================
+       LOAD PHOTOS
+       camera-photos BUCKET
+    ================================================== */
+
+    async function loadPhotos() {
+
+        try {
+
+            photoStatus.textContent =
+                "● Connecting...";
+
+
+            /*
+             * Supabase Storage list API
+             */
+
+            const url =
+                SUPABASE_URL +
+                "/storage/v1/object/list/" +
+                BUCKET;
+
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "POST",
+
+                        headers: getHeaders(),
+
+                        body: JSON.stringify({
+
+                            prefix: "",
+
+                            limit: 100,
+
+                            offset: 0,
+
+                            sortBy: {
+                                column: "created_at",
+                                order: "desc"
+                            }
+
+                        })
+
+                    }
+                );
+
+
+            const text =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Storage error " +
+                    response.status +
+                    ": " +
+                    text
+                );
+
+            }
+
+
+            const files =
+                JSON.parse(text);
+
+
+            /*
+             * Only actual files.
+             * Folders are ignored.
+             */
+
+            const photos =
+                files.filter(
+                    function (file) {
+
+                        return (
+                            file.name &&
+                            file.metadata
+                        );
+
+                    }
+                );
+
+
+            if (photos.length === 0) {
+
+                photoList.innerHTML =
+
+                    '<div class="empty">' +
+
+                        '<span class="empty-icon">📷</span>' +
+
+                        '<p>No photos yet</p>' +
+
+                        '<small>' +
+                            'Uploaded camera photos will appear here.' +
+                        '</small>' +
+
+                    '</div>';
+
+
+                photoStatus.textContent =
+                    "● Connected • 0 photos";
+
+
+                return;
+
+            }
+
+
+            /*
+             * Create signed URLs.
+             */
+
+            const paths =
+                photos.map(
+                    function (file) {
+
+                        return file.name;
+
+                    }
+                );
+
+
+            const signUrl =
+                SUPABASE_URL +
+                "/storage/v1/object/sign/" +
+                BUCKET;
+
+
+            const signResponse =
+                await fetch(
+                    signUrl,
+                    {
+                        method: "POST",
+
+                        headers: getHeaders(),
+
+                        body: JSON.stringify({
+
+                            expiresIn: 3600,
+
+                            paths: paths
+
+                        })
+
+                    }
+                );
+
+
+            const signText =
+                await signResponse.text();
+
+
+            if (!signResponse.ok) {
+
+                throw new Error(
+                    "Photo URL error " +
+                    signResponse.status +
+                    ": " +
+                    signText
+                );
+
+            }
+
+
+            const signedData =
+                JSON.parse(signText);
+
+
+            displayPhotos(
+                photos,
+                signedData
+            );
+
+
+            photoStatus.textContent =
+                "● Connected • " +
+                photos.length +
+                " photos";
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Photos error:",
+                error
+            );
+
+
+            photoList.innerHTML =
+
+                '<div class="empty">' +
+
+                    '<span class="empty-icon">⚠️</span>' +
+
+                    '<p class="error-message">' +
+                        'Unable to load photos' +
+                    '</p>' +
+
+                    '<small>' +
+                        escapeHTML(error.message) +
+                    '</small>' +
+
+                '</div>';
+
+
+            photoStatus.textContent =
+                "● Photo Connection Error";
+
+        }
+
+    }
+
+
+    /* ==================================================
+       DISPLAY PHOTOS
+    ================================================== */
+
+    function displayPhotos(
+        files,
+        signedData
+    ) {
+
+        photoList.innerHTML = "";
+
+
+        const grid =
+            document.createElement(
+                "div"
+            );
+
+
+        grid.className =
+            "photo-grid";
+
+
+        /*
+         * Supabase may return signed URLs
+         * in different response formats.
+         */
+
+        let signedUrls = [];
+
+
+        if (
+            Array.isArray(
+                signedData
+            )
+        ) {
+
+            signedUrls =
+                signedData;
+
+        } else if (
+            signedData &&
+            Array.isArray(
+                signedData.data
+            )
+        ) {
+
+            signedUrls =
+                signedData.data;
+
+        }
+
+
+        files.forEach(
+            function (file, index) {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "photo-card";
+
+
+                let signedUrl = "";
+
+
+                if (
+                    signedUrls[index]
+                ) {
+
+                    signedUrl =
+                        signedUrls[index].signedURL ||
+                        signedUrls[index].signedUrl ||
+                        signedUrls[index].url ||
+                        "";
+
+                }
+
+
+                /*
+                 * Fallback.
+                 */
+
+                if (
+                    !signedUrl &&
+                    file.name
+                ) {
+
+                    signedUrl =
+                        SUPABASE_URL +
+                        "/storage/v1/object/public/" +
+                        BUCKET +
+                        "/" +
+                        file.name;
+
+                }
+
+
+                let created =
+                    "Unknown time";
+
+
+                if (file.created_at) {
+
+                    const date =
+                        new Date(
+                            file.created_at
+                        );
+
+
+                    if (
+                        !isNaN(
+                            date.getTime()
+                        )
+                    ) {
+
+                        created =
+                            date.toLocaleString();
+
+                    }
+
+                }
+
+
+                const image =
+                    document.createElement(
+                        "img"
+                    );
+
+
+                image.src =
+                    signedUrl;
+
+
+                image.alt =
+                    "Camera Photo";
+
+
+                image.loading =
+                    "lazy";
+
+
+                const info =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                info.className =
+                    "photo-info";
+
+
+                info.innerHTML =
+
+                    '<div class="photo-name">' +
+                        escapeHTML(file.name) +
+                    '</div>' +
+
+                    '<div class="photo-time">' +
+                        escapeHTML(created) +
+                    '</div>' +
+
+                    '<a class="open-photo" href="' +
+                        signedUrl +
+                        '" target="_blank" rel="noopener noreferrer">' +
+
+                        'Open Photo' +
+
+                    '</a>';
+
+
+                card.appendChild(
+                    image
+                );
+
+
+                card.appendChild(
+                    info
+                );
+
+
+                grid.appendChild(
+                    card
+                );
+
+            }
+        );
+
+
+        photoList.appendChild(
+            grid
+        );
+
+    }
+
+
+    /* ==================================================
+       FIRST LOAD
+    ================================================== */
+
+    loadNotifications();
+
+    loadLocations();
+
+    loadPhotos();
+
+
+    /* ==================================================
+       AUTO REFRESH
+       10 SECONDS
+    ================================================== */
+
+    setInterval(
+        function () {
+
+            loadNotifications();
+
+            loadLocations();
+
+            loadPhotos();
+
+        },
+        10000
+    );
+
+});
 
 </script>
 
 </body>
+
 </html>
-```
