@@ -1,129 +1,14 @@
 // ==================================================
-// MY HAYDER WEBSITE + PRIVATE PARENT DASHBOARD
-// Notifications + Locations + Private Camera Photos
+// MY HAYDER PRIVATE PARENT DASHBOARD
+// Notifications + Locations + Camera Photos
+// + Parent Camera Capture Request
 // ==================================================
 
 document.addEventListener("DOMContentLoaded", function () {
 
     // ==================================================
-    // MOBILE MENU
-    // ==================================================
-
-    const menuToggle = document.getElementById("menuToggle");
-    const navLinks = document.getElementById("navLinks");
-
-    if (menuToggle && navLinks) {
-        menuToggle.addEventListener("click", function () {
-            navLinks.classList.toggle("active");
-        });
-    }
-
-    document.querySelectorAll(".nav-links a").forEach(function (link) {
-        link.addEventListener("click", function () {
-            if (navLinks) {
-                navLinks.classList.remove("active");
-            }
-        });
-    });
-
-
-    // ==================================================
-    // DARK / LIGHT MODE
-    // ==================================================
-
-    const themeToggle = document.getElementById("themeToggle");
-
-    if (themeToggle) {
-
-        themeToggle.addEventListener("click", function () {
-
-            document.body.classList.toggle("dark");
-
-            if (document.body.classList.contains("dark")) {
-                themeToggle.textContent = "🌙";
-                localStorage.setItem("theme", "dark");
-            } else {
-                themeToggle.textContent = "☀️";
-                localStorage.setItem("theme", "light");
-            }
-
-        });
-
-        const savedTheme = localStorage.getItem("theme");
-
-        if (savedTheme === "dark") {
-            document.body.classList.add("dark");
-            themeToggle.textContent = "🌙";
-        }
-    }
-
-
-    // ==================================================
-    // CURRENT YEAR
-    // ==================================================
-
-    const yearElement = document.getElementById("year");
-
-    if (yearElement) {
-        yearElement.textContent = new Date().getFullYear();
-    }
-
-
-    // ==================================================
-    // SCROLL ANIMATION
-    // ==================================================
-
-    const animatedElements = document.querySelectorAll(
-        ".skill-card, .highlight, .timeline-content, .contact-card"
-    );
-
-    if ("IntersectionObserver" in window) {
-
-        const observer = new IntersectionObserver(
-            function (entries) {
-
-                entries.forEach(function (entry) {
-
-                    if (entry.isIntersecting) {
-
-                        entry.target.style.opacity = "1";
-
-                        entry.target.style.transform =
-                            "translateY(0)";
-
-                        observer.unobserve(entry.target);
-                    }
-
-                });
-
-            },
-            {
-                threshold: 0.15
-            }
-        );
-
-        animatedElements.forEach(function (element) {
-
-            element.style.opacity = "0";
-
-            element.style.transform =
-                "translateY(25px)";
-
-            element.style.transition =
-                "opacity 0.6s ease, transform 0.6s ease";
-
-            observer.observe(element);
-        });
-    }
-
-
-    // ==================================================
     // SUPABASE
     // ==================================================
-
-    // IMPORTANT:
-    // ONLY actual Supabase URL here.
-    // DO NOT use Markdown links.
 
     const SUPABASE_URL =
         "https://wfwxidbdyqwkqsbaxtlj.supabase.co";
@@ -134,43 +19,65 @@ document.addEventListener("DOMContentLoaded", function () {
     const CAMERA_BUCKET =
         "camera-photos";
 
+    const DEVICE_ID =
+        "my-phone";
+
+    const CAPTURE_TABLE =
+        "capture";
+
 
     // ==================================================
-    // DASHBOARD SESSION
+    // SESSION
     // ==================================================
 
     const accessToken =
-        sessionStorage.getItem("parent_access_token");
+        sessionStorage.getItem(
+            "parent_access_token"
+        );
 
 
     // ==================================================
-    // DASHBOARD ELEMENTS
+    // ELEMENTS
     // ==================================================
 
     const notificationList =
-        document.getElementById("notificationList");
+        document.getElementById(
+            "notificationList"
+        );
 
     const notificationStatus =
-        document.getElementById("notificationStatus");
+        document.getElementById(
+            "notificationStatus"
+        );
 
     const locationList =
-        document.getElementById("locationList");
+        document.getElementById(
+            "locationList"
+        );
 
     const locationStatus =
-        document.getElementById("locationStatus");
+        document.getElementById(
+            "locationStatus"
+        );
 
     const photoList =
-        document.getElementById("photoList");
+        document.getElementById(
+            "photoList"
+        );
 
     const photoStatus =
-        document.getElementById("photoStatus");
+        document.getElementById(
+            "photoStatus"
+        );
 
     const logoutButton =
-        document.getElementById("logoutButton");
+        document.getElementById(
+            "logoutButton"
+        );
 
 
     // ==================================================
-    // PRIVATE DASHBOARD SECURITY
+    // SECURITY
     // ==================================================
 
     const isDashboard =
@@ -179,11 +86,58 @@ document.addEventListener("DOMContentLoaded", function () {
         photoList ||
         logoutButton;
 
-    if (isDashboard && !accessToken) {
+    if (
+        isDashboard &&
+        !accessToken
+    ) {
 
-        window.location.replace("login.html");
+        window.location.replace(
+            "login.html"
+        );
 
         return;
+    }
+
+
+    // ==================================================
+    // SUPABASE HEADERS
+    // ==================================================
+
+    function getSupabaseHeaders() {
+
+        return {
+
+            "apikey":
+                SUPABASE_KEY,
+
+            "Authorization":
+                "Bearer " + accessToken,
+
+            "Content-Type":
+                "application/json"
+        };
+    }
+
+
+    // ==================================================
+    // ESCAPE HTML
+    // ==================================================
+
+    function escapeHTML(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
 
@@ -212,49 +166,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 window.location.replace(
                     "login.html"
                 );
-
             }
         );
-    }
-
-
-    // ==================================================
-    // HTML SECURITY
-    // ==================================================
-
-    function escapeHTML(value) {
-
-        if (
-            value === null ||
-            value === undefined
-        ) {
-            return "";
-        }
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-
-    // ==================================================
-    // SUPABASE HEADERS
-    // ==================================================
-
-    function getSupabaseHeaders() {
-
-        if (!accessToken) {
-            throw new Error("Login session expired");
-        }
-
-        return {
-            "apikey": SUPABASE_KEY,
-            "Authorization": "Bearer " + accessToken,
-            "Content-Type": "application/json"
-        };
     }
 
 
@@ -263,41 +176,385 @@ document.addEventListener("DOMContentLoaded", function () {
     // ==================================================
 
     const tabButtons =
-        document.querySelectorAll(".tab-button");
+        document.querySelectorAll(
+            ".tab-button"
+        );
 
     const tabContents =
-        document.querySelectorAll(".tab-content");
+        document.querySelectorAll(
+            ".tab-content"
+        );
 
-    tabButtons.forEach(function (button) {
+    tabButtons.forEach(
+        function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    const targetId =
+                        button.getAttribute(
+                            "data-tab"
+                        );
+
+                    tabButtons.forEach(
+                        function (item) {
+
+                            item.classList.remove(
+                                "active"
+                            );
+                        }
+                    );
+
+                    tabContents.forEach(
+                        function (content) {
+
+                            content.classList.remove(
+                                "active"
+                            );
+                        }
+                    );
+
+                    button.classList.add(
+                        "active"
+                    );
+
+                    const target =
+                        document.getElementById(
+                            targetId
+                        );
+
+                    if (target) {
+
+                        target.classList.add(
+                            "active"
+                        );
+                    }
+                }
+            );
+        }
+    );
+
+
+    // ==================================================
+    // ADD CAPTURE BUTTON
+    // ==================================================
+
+    function addCaptureButton() {
+
+        const dashboardTop =
+            document.querySelector(
+                "#photosTab .dashboard-top"
+            );
+
+        if (!dashboardTop) {
+            return;
+        }
+
+        if (
+            document.getElementById(
+                "capturePhotoButton"
+            )
+        ) {
+            return;
+        }
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+        button.id =
+            "capturePhotoButton";
+
+        button.type =
+            "button";
+
+        button.textContent =
+            "📷 Capture Photo";
+
+        button.style.marginTop =
+            "15px";
+
+        button.style.padding =
+            "11px 18px";
+
+        button.style.border =
+            "none";
+
+        button.style.borderRadius =
+            "9px";
+
+        button.style.background =
+            "#2563eb";
+
+        button.style.color =
+            "white";
+
+        button.style.fontWeight =
+            "700";
+
+        button.style.cursor =
+            "pointer";
 
         button.addEventListener(
             "click",
-            function () {
-
-                const targetId =
-                    button.getAttribute("data-tab");
-
-                tabButtons.forEach(function (item) {
-                    item.classList.remove("active");
-                });
-
-                tabContents.forEach(function (content) {
-                    content.classList.remove("active");
-                });
-
-                button.classList.add("active");
-
-                const target =
-                    document.getElementById(targetId);
-
-                if (target) {
-                    target.classList.add("active");
-                }
-
-            }
+            requestCapture
         );
 
-    });
+        dashboardTop.appendChild(
+            button
+        );
+    }
+
+
+    // ==================================================
+    // CREATE CAPTURE REQUEST
+    // ==================================================
+
+    async function requestCapture() {
+
+        const button =
+            document.getElementById(
+                "capturePhotoButton"
+            );
+
+        if (button) {
+
+            button.disabled =
+                true;
+
+            button.textContent =
+                "⏳ Sending Request...";
+        }
+
+        try {
+
+            const response =
+                await fetch(
+                    SUPABASE_URL +
+                    "/rest/v1/" +
+                    CAPTURE_TABLE,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            ...getSupabaseHeaders(),
+
+                            "Prefer":
+                                "return=representation"
+                        },
+
+                        body: JSON.stringify({
+
+                            device_id:
+                                DEVICE_ID,
+
+                            action:
+                                "capture",
+
+                            status:
+                                "pending"
+                        })
+                    }
+                );
+
+            const text =
+                await response.text();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Capture request failed: " +
+                    response.status +
+                    " " +
+                    text
+                );
+            }
+
+            if (photoStatus) {
+
+                photoStatus.textContent =
+                    "● Camera request sent • Waiting for child device";
+            }
+
+            alert(
+                "Camera request sent.\n\n" +
+                "The child device must approve/open the camera and take the photo."
+            );
+
+            watchCaptureRequest();
+
+        } catch (error) {
+
+            console.error(
+                "Capture request error:",
+                error
+            );
+
+            alert(
+                "Could not send camera request:\n" +
+                error.message
+            );
+
+        } finally {
+
+            if (button) {
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "📷 Capture Photo";
+            }
+        }
+    }
+
+
+    // ==================================================
+    // WATCH CAPTURE STATUS
+    // ==================================================
+
+    let captureWatcher =
+        null;
+
+    function watchCaptureRequest() {
+
+        if (captureWatcher) {
+
+            clearInterval(
+                captureWatcher
+            );
+        }
+
+        let attempts = 0;
+
+        captureWatcher =
+            setInterval(
+                async function () {
+
+                    attempts++;
+
+                    await checkLatestCapture();
+
+                    if (attempts >= 60) {
+
+                        clearInterval(
+                            captureWatcher
+                        );
+
+                        captureWatcher =
+                            null;
+                    }
+
+                },
+                3000
+            );
+    }
+
+
+    // ==================================================
+    // CHECK LATEST CAPTURE
+    // ==================================================
+
+    async function checkLatestCapture() {
+
+        try {
+
+            const url =
+                SUPABASE_URL +
+                "/rest/v1/" +
+                CAPTURE_TABLE +
+                "?select=id,device_id,action,status,created_at,completed_at" +
+                "&device_id=eq." +
+                encodeURIComponent(
+                    DEVICE_ID
+                ) +
+                "&action=eq.capture" +
+                "&order=created_at.desc" +
+                "&limit=1";
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: "GET",
+                        headers:
+                            getSupabaseHeaders()
+                    }
+                );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const rows =
+                await response.json();
+
+            if (
+                !Array.isArray(rows) ||
+                rows.length === 0
+            ) {
+                return;
+            }
+
+            const request =
+                rows[0];
+
+            if (photoStatus) {
+
+                if (
+                    request.status ===
+                    "pending"
+                ) {
+
+                    photoStatus.textContent =
+                        "● Waiting for child device...";
+
+                } else if (
+                    request.status ===
+                    "processing"
+                ) {
+
+                    photoStatus.textContent =
+                        "● Camera opened • Waiting for photo...";
+
+                } else if (
+                    request.status ===
+                    "completed"
+                ) {
+
+                    photoStatus.textContent =
+                        "● Photo captured successfully";
+
+                    loadPhotos();
+
+                } else if (
+                    request.status ===
+                    "cancelled"
+                ) {
+
+                    photoStatus.textContent =
+                        "● Camera request cancelled";
+
+                } else if (
+                    request.status ===
+                    "failed"
+                ) {
+
+                    photoStatus.textContent =
+                        "● Camera request failed";
+                }
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Capture status error:",
+                error
+            );
+        }
+    }
 
 
     // ==================================================
@@ -308,11 +565,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!notificationList) {
             return;
-        }
-
-        if (notificationStatus) {
-            notificationStatus.textContent =
-                "● Connecting...";
         }
 
         try {
@@ -328,42 +580,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 await fetch(
                     url,
                     {
-                        method: "GET",
-                        headers: getSupabaseHeaders()
+                        headers:
+                            getSupabaseHeaders()
                     }
                 );
 
-            const responseText =
+            const text =
                 await response.text();
-
-            console.log(
-                "Notifications Status:",
-                response.status
-            );
 
             if (!response.ok) {
 
                 throw new Error(
-                    "Supabase error " +
-                    response.status +
-                    ": " +
-                    responseText
+                    text
                 );
             }
 
-            let notifications;
-
-            try {
-
-                notifications =
-                    JSON.parse(responseText);
-
-            } catch (error) {
-
-                throw new Error(
-                    "Invalid Supabase response"
-                );
-            }
+            const notifications =
+                JSON.parse(text);
 
             displayNotifications(
                 notifications
@@ -380,22 +613,11 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (error) {
 
             console.error(
-                "Notifications error:",
                 error
             );
 
-            notificationList.innerHTML =
-                '<div class="notification-empty">' +
-                    '<span>⚠️</span>' +
-                    '<p class="error-message">' +
-                        'Unable to load notifications' +
-                    '</p>' +
-                    '<small>' +
-                        escapeHTML(error.message) +
-                    '</small>' +
-                '</div>';
-
             if (notificationStatus) {
+
                 notificationStatus.textContent =
                     "● Connection Error";
             }
@@ -407,7 +629,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // DISPLAY NOTIFICATIONS
     // ==================================================
 
-    function displayNotifications(notifications) {
+    function displayNotifications(
+        notifications
+    ) {
 
         if (!notificationList) {
             return;
@@ -419,98 +643,78 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             notificationList.innerHTML =
-                '<div class="notification-empty">' +
-                    '<span>🔔</span>' +
-                    '<p>No notifications yet</p>' +
-                    '<small>' +
-                        'Notifications from the Android app will appear here.' +
-                    '</small>' +
-                '</div>';
+                `
+                <div class="notification-empty">
+                    <span>🔔</span>
+                    <p>No notifications yet</p>
+                </div>
+                `;
 
             return;
         }
 
-        notificationList.innerHTML = "";
+        notificationList.innerHTML =
+            "";
 
         notifications.forEach(
-            function (notification) {
+            function (item) {
 
                 const card =
-                    document.createElement("div");
+                    document.createElement(
+                        "div"
+                    );
 
                 card.className =
                     "notification-card";
 
-                const appName =
-                    notification.app_name ||
-                    notification.app ||
-                    notification.package_name ||
-                    "Unknown App";
-
-                const title =
-                    notification.title ||
-                    notification.notification_title ||
-                    "Notification";
-
-                const message =
-                    notification.message ||
-                    notification.text ||
-                    notification.notification_text ||
-                    "";
-
-                const deviceId =
-                    notification.device_id ||
-                    notification.device ||
-                    "Unknown Device";
-
-                const receivedAt =
-                    notification.received_at ||
-                    notification.created_at ||
-                    notification.timestamp;
-
-                let formattedTime =
-                    "Unknown time";
-
-                if (receivedAt) {
-
-                    const date =
-                        new Date(receivedAt);
-
-                    if (!isNaN(date.getTime())) {
-                        formattedTime =
-                            date.toLocaleString();
-                    }
-                }
+                const time =
+                    item.received_at
+                        ? new Date(
+                            item.received_at
+                        ).toLocaleString()
+                        : "Unknown";
 
                 card.innerHTML =
-                    '<div class="notification-card-top">' +
+                    `
+                    <div class="notification-card-top">
+                        <div class="notification-app">
+                            📱 ${escapeHTML(
+                                item.app_name ||
+                                "Unknown App"
+                            )}
+                        </div>
 
-                        '<div class="notification-app">' +
-                            '📱 ' +
-                            escapeHTML(appName) +
-                        '</div>' +
+                        <div class="notification-time">
+                            ${escapeHTML(time)}
+                        </div>
+                    </div>
 
-                        '<div class="notification-time">' +
-                            escapeHTML(formattedTime) +
-                        '</div>' +
+                    <div class="notification-title">
+                        ${escapeHTML(
+                            item.title ||
+                            "Notification"
+                        )}
+                    </div>
 
-                    '</div>' +
+                    <div class="notification-message">
+                        ${escapeHTML(
+                            item.message ||
+                            ""
+                        )}
+                    </div>
 
-                    '<div class="notification-title">' +
-                        escapeHTML(title) +
-                    '</div>' +
+                    <div class="notification-device">
+                        Device:
+                        ${escapeHTML(
+                            item.device_id ||
+                            "Unknown"
+                        )}
+                    </div>
+                    `;
 
-                    '<div class="notification-message">' +
-                        escapeHTML(message) +
-                    '</div>' +
-
-                    '<div class="notification-device">' +
-                        'Device: ' +
-                        escapeHTML(deviceId) +
-                    '</div>';
-
-                notificationList.appendChild(card);
-
+                notificationList.appendChild(
+                    card
+                );
             }
         );
     }
@@ -526,11 +730,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        if (locationStatus) {
-            locationStatus.textContent =
-                "● Connecting...";
-        }
-
         try {
 
             const url =
@@ -544,42 +743,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 await fetch(
                     url,
                     {
-                        method: "GET",
-                        headers: getSupabaseHeaders()
+                        headers:
+                            getSupabaseHeaders()
                     }
                 );
 
-            const responseText =
+            const text =
                 await response.text();
-
-            console.log(
-                "Locations Status:",
-                response.status
-            );
 
             if (!response.ok) {
 
                 throw new Error(
-                    "Supabase error " +
-                    response.status +
-                    ": " +
-                    responseText
+                    text
                 );
             }
 
-            let locations;
-
-            try {
-
-                locations =
-                    JSON.parse(responseText);
-
-            } catch (error) {
-
-                throw new Error(
-                    "Invalid Supabase response"
-                );
-            }
+            const locations =
+                JSON.parse(text);
 
             displayLocations(
                 locations
@@ -596,24 +776,8 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (error) {
 
             console.error(
-                "Locations error:",
                 error
             );
-
-            locationList.innerHTML =
-                '<div class="location-empty">' +
-
-                    '<span>⚠️</span>' +
-
-                    '<p class="error-message">' +
-                        'Unable to load locations' +
-                    '</p>' +
-
-                    '<small>' +
-                        escapeHTML(error.message) +
-                    '</small>' +
-
-                '</div>';
 
             if (locationStatus) {
 
@@ -628,7 +792,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // DISPLAY LOCATIONS
     // ==================================================
 
-    function displayLocations(locations) {
+    function displayLocations(
+        locations
+    ) {
 
         if (!locationList) {
             return;
@@ -640,157 +806,124 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             locationList.innerHTML =
-                '<div class="location-empty">' +
-
-                    '<span>📍</span>' +
-
-                    '<p>No locations yet</p>' +
-
-                    '<small>' +
-                        'Location data from the Android app will appear here.' +
-                    '</small>' +
-
-                '</div>';
+                `
+                <div class="location-empty">
+                    <span>📍</span>
+                    <p>No locations yet</p>
+                </div>
+                `;
 
             return;
         }
 
-        locationList.innerHTML = "";
+        locationList.innerHTML =
+            "";
 
         locations.forEach(
-            function (location) {
+            function (item) {
+
+                const lat =
+                    item.latitude;
+
+                const lng =
+                    item.longitude;
+
+                const time =
+                    item.created_at
+                        ? new Date(
+                            item.created_at
+                        ).toLocaleString()
+                        : "Unknown";
 
                 const card =
-                    document.createElement("div");
+                    document.createElement(
+                        "div"
+                    );
 
                 card.className =
                     "location-card";
 
-                const deviceId =
-                    location.device_id ||
-                    "Unknown Device";
-
-                const latitude =
-                    location.latitude !== null &&
-                    location.latitude !== undefined
-                        ? location.latitude
-                        : "N/A";
-
-                const longitude =
-                    location.longitude !== null &&
-                    location.longitude !== undefined
-                        ? location.longitude
-                        : "N/A";
-
-                let formattedTime =
-                    "Unknown time";
-
-                if (location.created_at) {
-
-                    const date =
-                        new Date(
-                            location.created_at
-                        );
-
-                    if (!isNaN(date.getTime())) {
-
-                        formattedTime =
-                            date.toLocaleString();
-                    }
-                }
-
-                let mapLink = "#";
-
-                if (
-                    location.latitude !== null &&
-                    location.latitude !== undefined &&
-                    location.longitude !== null &&
-                    location.longitude !== undefined
-                ) {
-
-                    mapLink =
-                        "https://www.google.com/maps?q=" +
-                        encodeURIComponent(
-                            location.latitude +
-                            "," +
-                            location.longitude
-                        );
-                }
+                const map =
+                    "https://www.google.com/maps?q=" +
+                    encodeURIComponent(
+                        lat + "," + lng
+                    );
 
                 card.innerHTML =
-                    '<div class="location-card-top">' +
+                    `
+                    <div class="location-card-top">
 
-                        '<div class="notification-app">' +
-                            '📍 Location' +
-                        '</div>' +
+                        <div class="notification-app">
+                            📍 Location
+                        </div>
 
-                        '<div class="location-time">' +
-                            escapeHTML(formattedTime) +
-                        '</div>' +
+                        <div class="location-time">
+                            ${escapeHTML(time)}
+                        </div>
 
-                    '</div>' +
+                    </div>
 
-                    '<div class="location-coordinates">' +
+                    <div class="location-coordinates">
 
-                        '<div class="coordinate-box">' +
+                        <div class="coordinate-box">
 
-                            '<span class="coordinate-label">' +
-                                'Latitude' +
-                            '</span>' +
+                            <span class="coordinate-label">
+                                Latitude
+                            </span>
 
-                            '<span class="coordinate-value">' +
-                                escapeHTML(latitude) +
-                            '</span>' +
+                            <span class="coordinate-value">
+                                ${escapeHTML(lat)}
+                            </span>
 
-                        '</div>' +
+                        </div>
 
-                        '<div class="coordinate-box">' +
+                        <div class="coordinate-box">
 
-                            '<span class="coordinate-label">' +
-                                'Longitude' +
-                            '</span>' +
+                            <span class="coordinate-label">
+                                Longitude
+                            </span>
 
-                            '<span class="coordinate-value">' +
-                                escapeHTML(longitude) +
-                            '</span>' +
+                            <span class="coordinate-value">
+                                ${escapeHTML(lng)}
+                            </span>
 
-                        '</div>' +
+                        </div>
 
-                    '</div>' +
+                    </div>
 
-                    '<div class="location-device">' +
+                    <div class="location-device">
 
-                        'ID: ' +
-                        escapeHTML(location.id) +
+                        Device:
+                        ${escapeHTML(
+                            item.device_id
+                        )}
 
-                        '<br>' +
+                    </div>
 
-                        'Device: ' +
-                        escapeHTML(deviceId) +
+                    <div class="location-device">
 
-                    '</div>' +
+                        <a
+                            href="${map}"
+                            target="_blank"
+                            rel="noopener noreferrer">
 
-                    '<div class="location-device">' +
+                            🗺️ Open Google Maps
 
-                        '<a href="' +
-                            mapLink +
-                        '" target="_blank" rel="noopener noreferrer">' +
+                        </a>
 
-                            '🗺️ Open Location in Google Maps' +
+                    </div>
+                    `;
 
-                        '</a>' +
-
-                    '</div>';
-
-                locationList.appendChild(card);
-
+                locationList.appendChild(
+                    card
+                );
             }
         );
     }
 
 
     // ==================================================
-    // LOAD PRIVATE CAMERA PHOTOS
+    // LOAD PHOTOS
     // ==================================================
 
     async function loadPhotos() {
@@ -799,70 +932,55 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        if (photoStatus) {
-            photoStatus.textContent =
-                "● Connecting...";
-        }
-
         try {
 
-            const listUrl =
+            const url =
                 SUPABASE_URL +
                 "/storage/v1/object/list/" +
                 CAMERA_BUCKET;
 
             const response =
                 await fetch(
-                    listUrl,
+                    url,
                     {
                         method: "POST",
 
                         headers:
                             getSupabaseHeaders(),
 
-                        body: JSON.stringify({
-                            prefix: "",
-                            limit: 100,
-                            offset: 0,
-                            sortBy: {
-                                column: "created_at",
-                                order: "desc"
-                            }
-                        })
+                        body:
+                            JSON.stringify({
+
+                                prefix: "",
+
+                                limit: 100,
+
+                                offset: 0,
+
+                                sortBy: {
+
+                                    column:
+                                        "created_at",
+
+                                    order:
+                                        "desc"
+                                }
+                            })
                     }
                 );
 
-            const responseText =
+            const text =
                 await response.text();
-
-            console.log(
-                "Photos List Status:",
-                response.status
-            );
 
             if (!response.ok) {
 
                 throw new Error(
-                    "Photo storage error " +
-                    response.status +
-                    ": " +
-                    responseText
+                    text
                 );
             }
 
-            let files;
-
-            try {
-
-                files =
-                    JSON.parse(responseText);
-
-            } catch (error) {
-
-                throw new Error(
-                    "Invalid photo storage response"
-                );
-            }
+            const files =
+                JSON.parse(text);
 
             if (
                 !Array.isArray(files) ||
@@ -871,27 +989,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 displayPhotos([]);
 
-                if (photoStatus) {
-                    photoStatus.textContent =
-                        "● Connected • 0 photos";
-                }
-
                 return;
             }
 
+            const photos =
+                [];
 
-            // ==================================================
-            // CREATE PHOTO ARRAY
-            // ==================================================
-
-            const photos = [];
-
-
-            // ==================================================
-            // CREATE SIGNED URL FOR EACH PHOTO
-            // ==================================================
-
-            for (const file of files) {
+            for (
+                const file of files
+            ) {
 
                 if (
                     !file ||
@@ -900,12 +1006,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     continue;
                 }
 
-                const signedUrl =
+                const url =
                     await createSignedPhotoUrl(
                         file.name
                     );
 
-                if (signedUrl) {
+                if (url) {
 
                     photos.push({
 
@@ -913,7 +1019,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             file.name,
 
                         url:
-                            signedUrl,
+                            url,
 
                         created_at:
                             file.created_at ||
@@ -923,12 +1029,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
 
-
-            // ==================================================
-            // DISPLAY PHOTOS
-            // ==================================================
-
-            displayPhotos(photos);
+            displayPhotos(
+                photos
+            );
 
             if (photoStatus) {
 
@@ -945,111 +1048,74 @@ document.addEventListener("DOMContentLoaded", function () {
                 error
             );
 
-            photoList.innerHTML =
-                '<div class="photo-empty">' +
-
-                    '<span>⚠️</span>' +
-
-                    '<p class="error-message">' +
-                        'Unable to load photos' +
-                    '</p>' +
-
-                    '<small>' +
-                        escapeHTML(error.message) +
-                    '</small>' +
-
-                '</div>';
-
             if (photoStatus) {
 
                 photoStatus.textContent =
-                    "● Connection Error";
+                    "● Photo Connection Error";
             }
         }
     }
 
 
     // ==================================================
-    // CREATE PRIVATE SIGNED PHOTO URL
+    // SIGNED PHOTO URL
     // ==================================================
 
-    async function createSignedPhotoUrl(fileName) {
+    async function createSignedPhotoUrl(
+        fileName
+    ) {
 
         try {
 
-            const signUrl =
+            const url =
                 SUPABASE_URL +
                 "/storage/v1/object/sign/" +
                 CAMERA_BUCKET +
                 "/" +
-                encodeURIComponent(fileName);
-
-            console.log(
-                "Creating signed URL:",
-                signUrl
-            );
+                encodeURIComponent(
+                    fileName
+                );
 
             const response =
                 await fetch(
-                    signUrl,
+                    url,
                     {
                         method: "POST",
 
                         headers:
                             getSupabaseHeaders(),
 
-                        body: JSON.stringify({
-                            expiresIn: 3600
-                        })
+                        body:
+                            JSON.stringify({
+                                expiresIn:
+                                    3600
+                            })
                     }
                 );
-
-            const responseText =
-                await response.text();
-
-            console.log(
-                "Signed URL Status:",
-                response.status
-            );
 
             if (!response.ok) {
 
                 console.error(
-                    "Signed URL error:",
-                    response.status,
-                    responseText
+                    "Signed URL failed:",
+                    response.status
                 );
 
                 return null;
             }
 
-            let result;
+            const result =
+                await response.json();
 
-            try {
-
-                result =
-                    JSON.parse(responseText);
-
-            } catch (error) {
-
-                console.error(
-                    "Invalid signed URL response:",
-                    responseText
-                );
-
-                return null;
-            }
-
-
-            // ==================================================
-            // SUPABASE signedURL
-            // ==================================================
-
-            if (result.signedURL) {
+            if (
+                result.signedURL
+            ) {
 
                 if (
-                    result.signedURL.startsWith("http")
+                    result.signedURL.startsWith(
+                        "http"
+                    )
                 ) {
+
                     return result.signedURL;
                 }
 
@@ -1060,16 +1126,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
             }
 
-
-            // ==================================================
-            // SUPABASE signedUrl
-            // ==================================================
-
-            if (result.signedUrl) {
+            if (
+                result.signedUrl
+            ) {
 
                 if (
-                    result.signedUrl.startsWith("http")
+                    result.signedUrl.startsWith(
+                        "http"
+                    )
                 ) {
+
                     return result.signedUrl;
                 }
 
@@ -1080,18 +1146,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
             }
 
-
-            console.error(
-                "No signed URL returned:",
-                result
-            );
-
             return null;
 
         } catch (error) {
 
             console.error(
-                "Signed photo error:",
                 error
             );
 
@@ -1101,10 +1160,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ==================================================
-    // DISPLAY PRIVATE CAMERA PHOTOS
+    // DISPLAY PHOTOS
     // ==================================================
 
-    function displayPhotos(photos) {
+    function displayPhotos(
+        photos
+    ) {
 
         if (!photoList) {
             return;
@@ -1116,73 +1177,71 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             photoList.innerHTML =
-                '<div class="photo-empty">' +
-
-                    '<span>📷</span>' +
-
-                    '<p>No photos yet</p>' +
-
-                    '<small>' +
-                        'Photos captured by the Android camera will appear here.' +
-                    '</small>' +
-
-                '</div>';
+                `
+                <div class="photo-empty">
+                    <span>📷</span>
+                    <p>No photos yet</p>
+                    <small>
+                        Press "Capture Photo" to request a photo.
+                    </small>
+                </div>
+                `;
 
             return;
         }
 
-        photoList.innerHTML = "";
-
-
-        // ==================================================
-        // PHOTO GRID
-        // ==================================================
+        photoList.innerHTML =
+            "";
 
         const grid =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
         grid.className =
             "photo-grid";
-
 
         photos.forEach(
             function (photo) {
 
                 const card =
-                    document.createElement("div");
+                    document.createElement(
+                        "div"
+                    );
 
                 card.className =
                     "photo-card";
 
-
-                // ==================================================
-                // TIME
-                // ==================================================
-
-                let formattedTime =
-                    "Unknown time";
-
-                if (photo.created_at) {
-
-                    const date =
-                        new Date(
+                const time =
+                    photo.created_at
+                        ? new Date(
                             photo.created_at
-                        );
+                        ).toLocaleString()
+                        : "Unknown";
 
-                    if (!isNaN(date.getTime())) {
+                const top =
+                    document.createElement(
+                        "div"
+                    );
 
-                        formattedTime =
-                            date.toLocaleString();
-                    }
-                }
+                top.className =
+                    "photo-card-top";
 
+                top.innerHTML =
+                    `
+                    <strong>
+                        📷 Camera Photo
+                    </strong>
 
-                // ==================================================
-                // PHOTO IMAGE
-                // ==================================================
+                    <span>
+                        ${escapeHTML(time)}
+                    </span>
+                    `;
 
                 const image =
-                    document.createElement("img");
+                    document.createElement(
+                        "img"
+                    );
 
                 image.src =
                     photo.url;
@@ -1193,14 +1252,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 image.loading =
                     "lazy";
 
-
                 image.style.cursor =
                     "pointer";
-
-
-                // ==================================================
-                // CLICK IMAGE TO OPEN
-                // ==================================================
 
                 image.addEventListener(
                     "click",
@@ -1208,108 +1261,55 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         window.open(
                             photo.url,
-                            "_blank",
-                            "noopener,noreferrer"
+                            "_blank"
                         );
-
                     }
                 );
 
-
-                // ==================================================
-                // IMAGE ERROR
-                // ==================================================
-
-                image.onerror =
-                    function () {
-
-                        console.error(
-                            "Photo failed to load:",
-                            photo.url
-                        );
-
-                        image.alt =
-                            "Unable to load photo";
-
-                    };
-
-
-                // ==================================================
-                // TOP
-                // ==================================================
-
-                const top =
-                    document.createElement("div");
-
-                top.className =
-                    "photo-card-top";
-
-                top.innerHTML =
-                    '<strong>📷 Camera Photo</strong>' +
-
-                    '<span>' +
-                        escapeHTML(
-                            formattedTime
-                        ) +
-                    '</span>';
-
-
-                // ==================================================
-                // INFO
-                // ==================================================
-
                 const info =
-                    document.createElement("div");
+                    document.createElement(
+                        "div"
+                    );
 
                 info.className =
                     "photo-info";
 
                 info.innerHTML =
-
-                    '<div class="photo-name">' +
-                        escapeHTML(
+                    `
+                    <div class="photo-name">
+                        ${escapeHTML(
                             photo.name
-                        ) +
-                    '</div>' +
+                        )}
+                    </div>
 
-                    '<div class="photo-time">' +
-                        escapeHTML(
-                            formattedTime
-                        ) +
-                    '</div>';
+                    <div class="photo-time">
+                        ${escapeHTML(time)}
+                    </div>
+                    `;
 
+                const open =
+                    document.createElement(
+                        "a"
+                    );
 
-                // ==================================================
-                // OPEN PHOTO BUTTON
-                // ==================================================
-
-                const openButton =
-                    document.createElement("a");
-
-                openButton.className =
+                open.className =
                     "open-photo";
 
-                openButton.href =
+                open.href =
                     photo.url;
 
-                openButton.target =
+                open.target =
                     "_blank";
 
-                openButton.rel =
+                open.rel =
                     "noopener noreferrer";
 
-                openButton.textContent =
+                open.textContent =
                     "Open Photo";
 
-
                 info.appendChild(
-                    openButton
+                    open
                 );
-
-
-                // ==================================================
-                // BUILD CARD
-                // ==================================================
 
                 card.appendChild(
                     top
@@ -1326,10 +1326,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 grid.appendChild(
                     card
                 );
-
             }
         );
-
 
         photoList.appendChild(
             grid
@@ -1338,54 +1336,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ==================================================
-    // FIRST LOAD
+    // START
     // ==================================================
 
     if (accessToken) {
 
-        if (notificationList) {
-            loadNotifications();
-        }
+        addCaptureButton();
 
-        if (locationList) {
-            loadLocations();
-        }
+        loadNotifications();
 
-        if (photoList) {
-            loadPhotos();
-        }
+        loadLocations();
+
+        loadPhotos();
+
+        checkLatestCapture();
     }
 
 
     // ==================================================
     // AUTO REFRESH
-    // 10 SECONDS
     // ==================================================
 
-    if (
-        notificationList ||
-        locationList ||
-        photoList
-    ) {
+    setInterval(
+        function () {
 
-        setInterval(
-            function () {
+            if (!accessToken) {
+                return;
+            }
 
-                if (notificationList) {
-                    loadNotifications();
-                }
+            loadNotifications();
 
-                if (locationList) {
-                    loadLocations();
-                }
+            loadLocations();
 
-                if (photoList) {
-                    loadPhotos();
-                }
+            loadPhotos();
 
-            },
-            10000
-        );
-    }
+            checkLatestCapture();
+
+        },
+        10000
+    );
 
 });
